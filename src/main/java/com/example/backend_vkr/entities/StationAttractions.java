@@ -5,20 +5,21 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.List;
+@IdClass(StationAttractionKey.class)
 
 @Entity
-@Table(name = "station_attractions")
-public class StationAttractions implements Serializable {
-
+public class StationAttractions {
     private Station station;
     private Attraction attraction;
     private String distance;
 
-    public StationAttractions(Station station, Attraction attraction,String distance) {
+    public StationAttractions( Station station, Attraction attraction, String distance) {
         this.station = station;
         this.attraction = attraction;
-        this.distance=distance;
+        this.distance = distance;
     }
+
+
 
     protected StationAttractions() {
     }
@@ -32,8 +33,8 @@ public class StationAttractions implements Serializable {
     public void setDistance(String distance) {
         this.distance = distance;
     }
-    @Id
     @ManyToOne
+    @Id
     @JoinColumn(name = "station_id")
     public Station getStation() {
         return station;
@@ -42,8 +43,9 @@ public class StationAttractions implements Serializable {
     public void setStation(Station station) {
         this.station = station;
     }
-    @Id
     @ManyToOne
+    @Id
+
     @JoinColumn(name = "attraction_id")
     public Attraction getAttraction() {
         return attraction;

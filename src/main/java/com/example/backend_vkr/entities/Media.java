@@ -17,8 +17,9 @@ public class Media extends BaseEntity {
     private Set<Station> stations;
     private Set<Attraction> attractions;
 
-    public Media(MediaType type, String urlRef) {
+    public Media(MediaType type, String name, String urlRef) {
         this.type = type;
+        this.name = name;
         this.urlRef = urlRef;
     }
 
