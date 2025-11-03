@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface AttractionRepository extends JpaRepository<Attraction,Long> {
-    @Query("SELECT m.ref " +
+    @Query("SELECT sa.attraction " +
             "FROM StationAttractions sa WHERE sa.station.id =: id")
     List<Attraction> findAllStationAttractions(@Param("stationId") Long id);
 }

@@ -4,6 +4,7 @@ package com.example.backend_vkr.entities;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "stations",uniqueConstraints = { @UniqueConstraint( columnNames = { "name", "branch" } ) })
@@ -13,8 +14,8 @@ public class Station extends BaseEntity {
     private String builtAt;
     private String address;
     private String description;
-    private List<Media> medias;
-    private List<StationAttractions> attractions;
+    private Set<Media> medias;
+    private Set<StationAttractions> attractions;
     public Station(String name, String address, String description,String branch) {
         this.name = name;
         this.address = address;
@@ -29,21 +30,21 @@ public class Station extends BaseEntity {
             joinColumns = @JoinColumn(name = "station_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "media_id",
                     referencedColumnName = "id"))
-    public List<Media> getMedias() {
+    public Set<Media> getMedias() {
         return medias;
     }
 
-    public void setMedias(List<Media> medias) {
+    public void setMedias(Set<Media> medias) {
         this.medias = medias;
     }
     @OneToMany(mappedBy = "station",targetEntity = StationAttractions.class,
             fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 
-    public List<StationAttractions> getAttractions() {
+    public Set<StationAttractions> getAttractions() {
         return attractions;
     }
 
-    public void setAttractions(List<StationAttractions> attractions) {
+    public void setAttractions(Set<StationAttractions> attractions) {
         this.attractions = attractions;
     }
 

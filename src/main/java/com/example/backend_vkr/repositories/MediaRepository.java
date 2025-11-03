@@ -10,7 +10,12 @@ import java.util.List;
 
 @Repository
 public interface MediaRepository extends JpaRepository<Media,Long> {
-    @Query("SELECT m.urlRef " +
-            "FROM StationMedias sm JOIN sm.station st JOIN sm.media m where st.id =: stationId")
+    @Query("SELECT distinct media.urlRef " +
+            "FROM Media media JOIN media.stations station where station.id =: stationId")
     List<String> findAllStationMediasByTpe(MediaType mediaType, Long stationId);
 }
+//select distinct distributor
+//from Distributor distributor
+//join distributor.towns town
+//join town.district district
+//where district.name = :name
