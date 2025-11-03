@@ -1,20 +1,19 @@
 package com.example.backend_vkr.entities;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.backend_vkr.entities.enums.MediaType;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "medias")
 public class Media extends BaseEntity {
-    private String type;
+    private MediaType type;
 
     private String name;
     private String urlRef;
 
 
-    public Media(String type, String urlRef) {
+    public Media(MediaType type, String urlRef) {
         this.type = type;
         this.urlRef = urlRef;
     }
@@ -33,11 +32,12 @@ public class Media extends BaseEntity {
     }
     @Column(name = "type", nullable = false)
 
-    public String getType() {
+    @Enumerated(EnumType.STRING)
+    public MediaType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(MediaType type) {
         this.type = type;
     }
     @Column(name = "url_ref", nullable = false)

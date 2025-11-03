@@ -9,14 +9,13 @@ import java.util.List;
 @Table(name = "stations",uniqueConstraints = { @UniqueConstraint( columnNames = { "name", "branch" } ) })
 public class Station extends BaseEntity {
     private String name;
-    private int branch;
-    private List<Media> medias;
-    private List<StationAttractions> attractions;
-
+    private String branch;
+    private String builtAt;
     private String address;
     private String description;
-
-    public Station(String name, String address, String description,int branch) {
+    private List<Media> medias;
+    private List<StationAttractions> attractions;
+    public Station(String name, String address, String description,String branch) {
         this.name = name;
         this.address = address;
         this.branch=branch;
@@ -56,13 +55,23 @@ public class Station extends BaseEntity {
     public void setName(String name) {
         this.name = name;
     }
+    @Column(name = "built_at", nullable = false)
+
+    public String getBuiltAt() {
+        return builtAt;
+    }
+
+    public void setBuiltAt(String builtAt) {
+        this.builtAt = builtAt;
+    }
+
     @Column(name = "branch", nullable = false)
 
-    public int getBranch() {
+    public String getBranch() {
         return branch;
     }
 
-    public void setBranch(int branch) {
+    public void setBranch(String branch) {
         this.branch = branch;
     }
 
