@@ -1,16 +1,17 @@
 package com.example.backend_vkr.entities;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "stations",uniqueConstraints = { @UniqueConstraint( columnNames = { "name", "branch" } ) })
 public class Station extends BaseEntity {
     private String name;
     private int branch;
+    private List<Media> medias;
+    private List<StationAttractions> attractions;
 
     private String address;
     private String description;
@@ -24,7 +25,28 @@ public class Station extends BaseEntity {
 
     protected Station() {
     }
+    @ManyToMany
+    @JoinTable(name = "station_medias",
+            joinColumns = @JoinColumn(name = "station_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "media_id",
+                    referencedColumnName = "id"))
+    public List<Media> getMedias() {
+        return medias;
+    }
 
+    public void setMedias(List<Media> medias) {
+        this.medias = medias;
+    }
+    @OneToMany(mappedBy = "station",targetEntity = StationAttractions.class,
+            fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+
+    public List<StationAttractions> getAttractions() {
+        return attractions;
+    }
+
+    public void setAttractions(List<StationAttractions> attractions) {
+        this.attractions = attractions;
+    }
 
     @Column(name = "name", nullable = false)
     public String getName() {

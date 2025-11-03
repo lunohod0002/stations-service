@@ -1,8 +1,8 @@
 package com.example.backend_vkr.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "attractions")
@@ -13,7 +13,8 @@ public class Attraction extends BaseEntity {
     private String workingHours;
     private int price;
     private String urlRef;
-
+    private List<Media> medias;
+    private List<StationAttractions> stationAttractions;
     protected Attraction() {
     }
 
@@ -26,6 +27,27 @@ public class Attraction extends BaseEntity {
         this.urlRef = urlRef;
     }
 
+    @ManyToMany
+    @JoinTable(name = "attraction_medias",
+            joinColumns = @JoinColumn(name = "attraction_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "media_id",
+                    referencedColumnName = "id"))
+    public List<Media> getMedias() {
+        return medias;
+    }
+    @OneToMany(mappedBy = "attraction",targetEntity = StationAttractions.class,
+            fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public List<StationAttractions> getStationAttractions() {
+        return stationAttractions;
+    }
+
+    public void setStationAttractions(List<StationAttractions> stationAttractions) {
+        this.stationAttractions = stationAttractions;
+    }
+
+    public void setMedias(List<Media> medias) {
+        this.medias = medias;
+    }
 
     @Column(name = "name", nullable = false)
     public String getName() {
