@@ -12,6 +12,6 @@ import java.util.Optional;
 @Repository
 public interface StationRepository extends JpaRepository<Station,Long> {
     @Query("SELECT st FROM Station st where st.name=:name and st.branch=:branch")
-    Optional<Station> findByNameAndBranch(@Param("name") String name,@Param("branch")int branch);
+    Optional<Station> findByNameAndBranch(@Param("name") String name,@Param("branch")String branch);
 
 }

@@ -45,7 +45,7 @@ public class StationService {
     }
     public AttractionInfoResponse findAttractionById(Long id) {
         Attraction attraction =  attractionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Достопримечатльность не найдена:", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
         return null;
     }
 

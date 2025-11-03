@@ -16,6 +16,7 @@ public class Attraction extends BaseEntity {
     private String urlRef;
     private Set<Media> medias;
     private Set<StationAttractions> stationAttractions;
+
     protected Attraction() {
     }
 
@@ -36,7 +37,8 @@ public class Attraction extends BaseEntity {
     public Set<Media> getMedias() {
         return medias;
     }
-    @OneToMany(mappedBy = "attraction",targetEntity = StationAttractions.class,
+
+    @OneToMany(mappedBy = "attraction", targetEntity = StationAttractions.class,
             fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     public Set<StationAttractions> getStationAttractions() {
         return stationAttractions;
@@ -78,6 +80,7 @@ public class Attraction extends BaseEntity {
     public void setAddress(String address) {
         this.address = address;
     }
+
     @Column(name = "working_hours", nullable = false)
 
     public String getWorkingHours() {
@@ -87,6 +90,7 @@ public class Attraction extends BaseEntity {
     public void setWorkingHours(String workingHours) {
         this.workingHours = workingHours;
     }
+
     @Column(name = "price")
 
     public int getPrice() {
@@ -96,6 +100,7 @@ public class Attraction extends BaseEntity {
     public void setPrice(int price) {
         this.price = price;
     }
+
     @Column(name = "url_ref", nullable = false)
 
     public String getUrlRef() {
