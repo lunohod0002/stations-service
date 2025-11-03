@@ -31,6 +31,7 @@ public class Media extends BaseEntity {
     public void setName(String name) {
         this.name = name;
     }
+    @Column(name = "type", nullable = false)
 
     public String getType() {
         return type;
@@ -39,6 +40,7 @@ public class Media extends BaseEntity {
     public void setType(String type) {
         this.type = type;
     }
+    @Column(name = "url_ref", nullable = false)
 
     public String getUrlRef() {
         return urlRef;
