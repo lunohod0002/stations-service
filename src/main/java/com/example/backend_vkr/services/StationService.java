@@ -27,13 +27,13 @@ public class StationService {
     }
 
 
-    public StationResponse findStationById(Long id) {
-        Station station = stationRepository.findStationById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", id));
-        List<String> photos=mediaRepository.findAllStationMediasByType(MediaType.PHOTO,id);
-        List<String> videos=mediaRepository.findAllStationMediasByType(MediaType.VIDEO,id);
-        List<String> audios=mediaRepository.findAllStationMediasByType(MediaType.AUDIO,id);
-        List<Attraction> attractions = attractionRepository.findAllStationAttractions(id);
+    public StationResponse getStationByNameAndBranch(String name, String branch) {
+        Station station = stationRepository.findByNameAndBranch(name, branch)
+                .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", name));
+        List<String> photos=mediaRepository.findAllStationMediasByType(MediaType.PHOTO,station.getId());
+        List<String> videos=mediaRepository.findAllStationMediasByType(MediaType.VIDEO,station.getId());
+        List<String> audios=mediaRepository.findAllStationMediasByType(MediaType.AUDIO,station.getId());
+        List<Attraction> attractions = attractionRepository.findAllStationAttractions(station.getId());
         List<AttractionResponse> attractionResponses = attractions.stream().map(
                 attraction -> new AttractionResponse(attraction.getId(),attraction.getName(),attraction.getPrice(),attraction.getAddress())).toList() ;
         return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getBuiltAt(), station.getDescription(), photos,videos,audios,attractionResponses);

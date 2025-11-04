@@ -29,6 +29,11 @@ public class AttractionService {
         this.attractionRepository = attractionRepository;
     }
 
+    public List<AttractionResponse> getStationAttractions(Long stationId) {
+//        Attraction attraction =  attractionRepository.findById(stationId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", stationId);
+        return null;
+    }
     public AttractionInfoResponse findAttractionById(Long id) {
         Attraction attraction =  attractionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
