@@ -66,7 +66,10 @@ public class ConsoleRunner implements CommandLineRunner {
                 "https://hermitagemuseum.org"
         );
 
-
+        attraction1.setMedias(Set.of(photo1,video1,audio1));
+        photo1.setAttractions(Set.of(attraction1));
+        video1.setAttractions(Set.of(attraction1));
+        audio1.setAttractions(Set.of(attraction1));
 
         attractionRepository.save(attraction1);
 

@@ -14,12 +14,7 @@ public interface MediaRepository extends JpaRepository<Media,Long> {
     @Query("SELECT media.urlRef " +
             "FROM Media media JOIN media.stations station where station.id = :stationId and media.type = :mediaType")
     List<String> findAllStationMediasByType(@Param("mediaType") MediaType mediaType,@Param("stationId") Long stationId);
-    @Query("SELECT distinct media.urlRef " +
+    @Query("SELECT media.urlRef " +
             "FROM Media media JOIN media.attractions attraction where attraction.id = :attractionId and media.type = :mediaType")
     List<String> findAllAttractionMediasByType(@Param("mediaType") MediaType mediaType,@Param("attractionId") Long attractionId);
 }
-//select distinct distributor
-//from Distributor distributor
-//join distributor.towns town
-//join town.district district
-//where district.name = :name

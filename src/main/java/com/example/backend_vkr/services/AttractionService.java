@@ -2,6 +2,7 @@ package com.example.backend_vkr.services;
 
 import com.example.backend_vkr.entities.Attraction;
 import com.example.backend_vkr.entities.Station;
+import com.example.backend_vkr.entities.StationAttractions;
 import com.example.backend_vkr.entities.enums.MediaType;
 import com.example.backend_vkr.exception.ResourceNotFoundException;
 import com.example.backend_vkr.models.AttractionInfoResponse;
@@ -23,21 +24,40 @@ import java.util.stream.Stream;
 public class AttractionService {
     private final MediaRepository mediaRepository;
     private final AttractionRepository attractionRepository;
+    private final StationRepository stationRepository;
+
     @Autowired
-    public AttractionService(MediaRepository mediaRepository, AttractionRepository attractionRepository) {
+    public AttractionService(MediaRepository mediaRepository, AttractionRepository attractionRepository, StationRepository stationRepository) {
         this.mediaRepository = mediaRepository;
         this.attractionRepository = attractionRepository;
+        this.stationRepository = stationRepository;
     }
+    public PagedResponse<AttractionResponse> getStationAttractions(Long stationId, int page, int size) {
+        stationRepository.findById(stationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", stationId));
+        List<StationAttractions> attractions = attractionRepository.findAllStationAttractions(stationId);
 
-    public List<AttractionResponse> getStationAttractions(Long stationId) {
-//        Attraction attraction =  attractionRepository.findById(stationId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", stationId);
-        return null;
+        int totalElements = attractions.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, totalElements);
+
+         attractions = (fromIndex > toIndex) ? List.of() : attractions.subList(fromIndex, toIndex);
+
+
+        List<AttractionResponse> pagedContent= attractions.stream().map(
+                stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(),stationAttraction.getAttraction().getAddress())).toList() ;
+        return new PagedResponse<>(pagedContent, page, size, totalElements, totalPages, page >= totalPages - 1);
+
     }
     public AttractionInfoResponse findAttractionById(Long id) {
         Attraction attraction =  attractionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
-        return null;
+        List<String> photos=mediaRepository.findAllAttractionMediasByType(MediaType.PHOTO,id);
+        List<String> videos=mediaRepository.findAllAttractionMediasByType(MediaType.VIDEO,id);
+        List<String> audios=mediaRepository.findAllAttractionMediasByType(MediaType.AUDIO,id);
+
+        return new AttractionInfoResponse(id,attraction.getName(),attraction.getAddress(),attraction.getWorkingHours(),attraction.getDescription(),attraction.getPrice(),attraction.getUrlRef(),photos,videos,audios);
     }
 
 

@@ -3,6 +3,7 @@ package com.example.backend_vkr.controllers;
 
 import com.example.backend_vkr.models.AttractionInfoResponse;
 import com.example.backend_vkr.models.AttractionResponse;
+import com.example.backend_vkr.models.PagedResponse;
 import com.example.backend_vkr.models.StationResponse;
 import com.example.backend_vkr.services.AttractionService;
 import com.example.backend_vkr.services.StationService;
@@ -30,9 +31,11 @@ public class StationController implements StationApi {
     }
 
     @Override
-    public List<AttractionResponse> getStationAttractions(Long id) {
-        return attractionService.getStationAttractions(id);
+    public PagedResponse<AttractionResponse> getStationAttractions(Long id, int page, int size) {
+        return attractionService.getStationAttractions(id,page,size);
+
     }
+
 
     @Override
     public AttractionInfoResponse getAttraction(Long id) {

@@ -14,8 +14,8 @@ public class Attraction extends BaseEntity {
     private String workingHours;
     private int price;
     private String urlRef;
-    private List<Media> medias;
-    private List<StationAttractions> stationAttractions;
+    private Set<Media> medias;
+    private Set<StationAttractions> stationAttractions;
 
     protected Attraction() {
     }
@@ -34,21 +34,21 @@ public class Attraction extends BaseEntity {
             joinColumns = @JoinColumn(name = "attraction_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "media_id",
                     referencedColumnName = "id"))
-    public List<Media> getMedias() {
+    public Set<Media> getMedias() {
         return medias;
     }
 
     @OneToMany(mappedBy = "attraction", targetEntity = StationAttractions.class,
             fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    public List<StationAttractions> getStationAttractions() {
+    public Set<StationAttractions> getStationAttractions() {
         return stationAttractions;
     }
 
-    public void setStationAttractions(List<StationAttractions> stationAttractions) {
+    public void setStationAttractions(Set<StationAttractions> stationAttractions) {
         this.stationAttractions = stationAttractions;
     }
 
-    public void setMedias(List<Media> medias) {
+    public void setMedias(Set<Media> medias) {
         this.medias = medias;
     }
 
