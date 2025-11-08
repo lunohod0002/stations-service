@@ -15,6 +15,10 @@ import com.example.backend_vkr.repositories.StationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,19 +39,13 @@ public class AttractionService {
     public PagedResponse<AttractionResponse> getStationAttractions(Long stationId, int page, int size) {
         stationRepository.findById(stationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", stationId));
-        List<StationAttractions> attractions = attractionRepository.findAllStationAttractions(stationId);
-
-        int totalElements = attractions.size();
-        int totalPages = (int) Math.ceil((double) totalElements / size);
-        int fromIndex = page * size;
-        int toIndex = Math.min(fromIndex + size, totalElements);
-
-         attractions = (fromIndex > toIndex) ? List.of() : attractions.subList(fromIndex, toIndex);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("distance"));
+        Page<StationAttractions> attractions = attractionRepository.findAllStationAttractions(stationId,pageable);
 
 
         List<AttractionResponse> pagedContent= attractions.stream().map(
                 stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(),stationAttraction.getAttraction().getAddress())).toList() ;
-        return new PagedResponse<>(pagedContent, page, size, totalElements, totalPages, page >= totalPages - 1);
+        return new PagedResponse<>(pagedContent, page, size, attractions.getTotalElements(), attractions.getTotalPages(), page >= attractions.getTotalPages() - 1);
 
     }
     public AttractionInfoResponse findAttractionById(Long id) {

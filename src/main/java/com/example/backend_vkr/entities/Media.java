@@ -27,7 +27,7 @@ public class Media extends BaseEntity {
     }
 
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     public String getName() {
         return name;
     }

@@ -65,17 +65,38 @@ public class ConsoleRunner implements CommandLineRunner {
                 500,
                 "https://hermitagemuseum.org"
         );
-
+        Attraction attraction2 = new Attraction(
+                "Музей победы",
+                "Тверская, 33",
+                "Один из крупнейших музеев мира",
+                "10:00–18:00",
+                111,
+                "https://hermitagemus1eum.org"
+        );
+        Attraction attraction3 = new Attraction(
+                "Музей Истории",
+                "Тверская, 222",
+                "Один из крупнейших музеев мира",
+                "10:00–18:00",
+                121,
+                "https://hermitagemus1eum.org"
+        );
         attraction1.setMedias(Set.of(photo1,video1,audio1));
         photo1.setAttractions(Set.of(attraction1));
         video1.setAttractions(Set.of(attraction1));
         audio1.setAttractions(Set.of(attraction1));
 
         attractionRepository.save(attraction1);
+        attractionRepository.save(attraction2);
+        attractionRepository.save(attraction3);
 
-        StationAttractions link = new StationAttractions(station1, attraction1, "800 м");
+        StationAttractions link1 = new StationAttractions(station1, attraction1, "800 м");
+        StationAttractions link2 = new StationAttractions(station1, attraction2, "150 м");
+        StationAttractions link3 = new StationAttractions(station1, attraction3, "450 м");
 
-        stationAttractionsRepository.save(link);
+        stationAttractionsRepository.save(link1);
+        stationAttractionsRepository.save(link2);
+        stationAttractionsRepository.save(link3);
 
 
 

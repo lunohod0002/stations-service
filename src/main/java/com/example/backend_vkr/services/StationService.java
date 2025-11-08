@@ -11,6 +11,10 @@ import com.example.backend_vkr.repositories.AttractionRepository;
 import com.example.backend_vkr.repositories.MediaRepository;
 import com.example.backend_vkr.repositories.StationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,8 +38,9 @@ public class StationService {
         List<String> photos=mediaRepository.findAllStationMediasByType(MediaType.PHOTO,station.getId());
         List<String> videos=mediaRepository.findAllStationMediasByType(MediaType.VIDEO,station.getId());
         List<String> audios=mediaRepository.findAllStationMediasByType(MediaType.AUDIO,station.getId());
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("distance"));
 
-        List<StationAttractions> attractions = attractionRepository.findAllStationAttractions(  station.getId());
+        Page<StationAttractions> attractions = attractionRepository.findAllStationAttractions(  station.getId(),pageable);
         List<AttractionResponse> attractionResponses = attractions.stream().map(
                 stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(),stationAttraction.getAttraction().getAddress())).toList() ;
         return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getBuiltAt(), station.getDescription(), photos,videos,audios,attractionResponses);

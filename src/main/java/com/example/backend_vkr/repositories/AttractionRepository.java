@@ -3,6 +3,8 @@ package com.example.backend_vkr.repositories;
 import com.example.backend_vkr.entities.Attraction;
 import com.example.backend_vkr.entities.Station;
 import com.example.backend_vkr.entities.StationAttractions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,5 +17,5 @@ import java.util.Optional;
 public interface AttractionRepository extends JpaRepository<Attraction,Long> {
     @Query("SELECT sa " +
             "FROM StationAttractions sa WHERE sa.station.id = :stationId")
-    List<StationAttractions> findAllStationAttractions(@Param("stationId") Long stationId);
+    Page<StationAttractions> findAllStationAttractions(@Param("stationId") Long stationId, Pageable pageable);
 }
