@@ -4,12 +4,10 @@ services:
   db:
     image: postgres:17
     container_name: db
-
     volumes:
-      - db-data:/var/lib/postgresql
+      - ./postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_SCHEMA: metadata
-
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
@@ -28,21 +26,8 @@ services:
       - "8085:80"
     networks:
       - dev_vkr
-  redis:
-    container_name: redis
-    image: redis:latest
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-    networks:
-      - dev_vkr
 
 networks:
   dev_vkr:
     name: dev_vkr
     driver: bridge
-volumes:
-  db-data:

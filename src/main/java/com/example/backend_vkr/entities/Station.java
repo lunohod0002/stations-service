@@ -76,7 +76,7 @@ public class Station extends BaseEntity {
         this.branch = branch;
     }
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false,columnDefinition = "TEXT")
 
     public String getDescription() {
         return description;

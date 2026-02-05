@@ -37,10 +37,10 @@ public class ConsoleRunner implements CommandLineRunner {
     @Transactional
     @Override
     public void run(String... args) throws Exception {
-        Media photo1 = new Media(MediaType.PHOTO,"Фото станции 1", "https://example.com/photo1.jpg");
+        Media photo1 = new Media(MediaType.PHOTO,"Фото станции 1", "Департамент транспорта Москвы","https://example.com/photo1.jpg");
 
-        Media video1 = new Media(MediaType.VIDEO,"Видео 1", "https://example.com/video1.mp4");
-        Media audio1 = new Media(MediaType.AUDIO, "Ауидо 1","https://example.com/audio1.mp3");
+        Media video1 = new Media(MediaType.VIDEO,"Видео 1", "Департамент транспорта Москвы","https://example.com/video1.mp4");
+        Media audio1 = new Media(MediaType.AUDIO, "Ауидо 1","Департамент транспорта Москвы","https://example.com/audio1.mp3");
         mediaRepository.save(photo1);
         mediaRepository.save(video1);
         mediaRepository.save(audio1);
