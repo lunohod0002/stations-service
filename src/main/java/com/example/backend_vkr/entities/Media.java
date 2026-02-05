@@ -35,7 +35,7 @@ public class Media extends BaseEntity {
     public void setSource(String source) {
         this.source = source;
     }
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     public String getName() {
         return name;
     }
