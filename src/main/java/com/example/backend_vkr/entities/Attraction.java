@@ -11,6 +11,8 @@ public class Attraction extends BaseEntity {
     private String name;
     private String address;
     private String description;
+    private String phoneNumber;
+    private String email;
     private String workingHours;
     private int price;
     private String urlRef;
@@ -20,8 +22,10 @@ public class Attraction extends BaseEntity {
     protected Attraction() {
     }
 
-    public Attraction(String name, String address, String description, String workingHours, int price, String urlRef) {
+    public Attraction(String name, String phoneNumber, String email,String address, String description, String workingHours, int price, String urlRef) {
         this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
         this.address = address;
         this.description = description;
         this.workingHours = workingHours;
@@ -46,6 +50,24 @@ public class Attraction extends BaseEntity {
 
     public void setStationAttractions(Set<StationAttractions> stationAttractions) {
         this.stationAttractions = stationAttractions;
+    }
+    @Column(name = "phone_number")
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    @Column(name = "email")
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setMedias(Set<Media> medias) {
@@ -81,7 +103,7 @@ public class Attraction extends BaseEntity {
         this.address = address;
     }
 
-    @Column(name = "working_hours", nullable = false)
+    @Column(name = "working_hours")
 
     public String getWorkingHours() {
         return workingHours;
@@ -99,7 +121,7 @@ public class Attraction extends BaseEntity {
     public void setPrice(int price) {
         this.price = price;
     }
-    @Column(name = "url_ref", nullable = false)
+    @Column(name = "url_ref")
 
     public String getUrlRef() {
         return urlRef;
