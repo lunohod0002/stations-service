@@ -14,30 +14,23 @@ public class Media extends BaseEntity {
 
     private String name;
     private String urlRef;
-    private String branch;
     private Set<Station> stations;
     private Set<Attraction> attractions;
     private String source;
-    public Media(MediaType type, String name,String source, String urlRef,String branch) {
+    public Media(MediaType type, String name,String source, String urlRef) {
         this.type = type;
         this.name = name;
         this.source= source;
         this.urlRef = urlRef;
-        this.branch = branch;
     }
 
     protected Media() {
     }
-    @Column(name = "branch", nullable = false)
-    public String getBranch() {
-        return branch;
-    }
 
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
 
-    @Column(name = "source", nullable = false)
+
+
+    @Column(name = "source", nullable = false,columnDefinition = "TEXT")
     public String getSource() {
         return source;
     }
