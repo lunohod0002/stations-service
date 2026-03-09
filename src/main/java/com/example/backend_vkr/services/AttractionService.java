@@ -5,13 +5,11 @@ import com.example.backend_vkr.entities.Station;
 import com.example.backend_vkr.entities.StationAttractions;
 import com.example.backend_vkr.entities.enums.MediaType;
 import com.example.backend_vkr.exception.ResourceNotFoundException;
-import com.example.backend_vkr.models.AttractionInfoResponse;
-import com.example.backend_vkr.models.AttractionResponse;
-import com.example.backend_vkr.models.PagedResponse;
-import com.example.backend_vkr.models.StationResponse;
+import com.example.backend_vkr.models.*;
 import com.example.backend_vkr.repositories.AttractionRepository;
 import com.example.backend_vkr.repositories.MediaRepository;
 import com.example.backend_vkr.repositories.StationRepository;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -59,5 +57,7 @@ public class AttractionService {
     }
 
 
-
+    public AttractionInfoResponse addAttraction( AttractionRequest request) {
+        attractionRepository.save(new Attraction(request.name(),request.phoneNumber(),))
+    }
 }

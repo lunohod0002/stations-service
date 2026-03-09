@@ -111,31 +111,31 @@ public class ConsoleRunner implements CommandLineRunner {
 //        stationAttractionsRepository.save(link3);
 
 
-   //     syncStationMediaByMatchingNameAndBranch();
+        syncStationMediaByMatchingNameAndBranch();
 
 
         System.out.println("Тестовые данные успешно загружены!");
     }
-//    private void syncStationMediaByMatchingNameAndBranch() {
-//        try {
-//            String connectionString = "jdbc:postgresql://localhost:5432/postgres";
-//
-//            setDataSource(connectionString);
-//            String sql = """
-//            INSERT INTO station_medias (station_id, media_id)
-//            SELECT s.id, m.id
-//            FROM stations s
-//            INNER JOIN medias m ON s.name = m.name AND s.branch = m.branch
-//            WHERE NOT EXISTS (
-//                SELECT 1 FROM station_medias sm
-//                WHERE sm.station_id = s.id AND sm.media_id = m.id
-//            )
-//            """;
-//        int updated = jdbcTemplate.update(sql);
-//        System.out.println("Создано новых связей station-media: " + updated);
-//        } catch (Exception ex) {
-//            System.err.println("Ошибка при вставке пользователя: " + ex.getMessage());
-//            ex.printStackTrace();
-//        }
-//    }
+    private void syncStationMediaByMatchingNameAndBranch() {
+        try {
+            String connectionString = "jdbc:postgresql://localhost:5432/postgres";
+
+            setDataSource(connectionString);
+            String sql = """
+            INSERT INTO attraction_medias (attraction_id, media_id)
+            SELECT a.id, m.id
+            FROM attractions a
+            INNER JOIN medias m ON a.name = m.name
+            WHERE NOT EXISTS (
+                SELECT 1 FROM attraction_medias am
+                WHERE am.attraction_id = a.id AND am.media_id = m.id
+            )
+            """;
+        int updated = jdbcTemplate.update(sql);
+        System.out.println("Создано новых связей station-media: " + updated);
+        } catch (Exception ex) {
+            System.err.println("Ошибка при вставке пользователя: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
 }

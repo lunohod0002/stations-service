@@ -2,16 +2,18 @@ package com.example.backend_vkr.entities;
 
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "stations",uniqueConstraints = { @UniqueConstraint( columnNames = { "name", "branch" } ) })
+
 public class Station extends BaseEntity {
     private String name;
     private String branch;
-    private String builtAt;
     private List<String> extraServices;
 
     private String address;
@@ -19,22 +21,15 @@ public class Station extends BaseEntity {
     private Set<Media> medias;
     private Set<StationAttractions> attractions;
 
-    public Station(String address, String description, List<String> extraServices, String builtAt, String branch, String name) {
+    public Station(String address, String description, List<String> extraServices, String branch, String name) {
         this.address = address;
         this.description = description;
         this.extraServices = extraServices;
-        this.builtAt = builtAt;
         this.branch = branch;
         this.name = name;
     }
 
-    public Station(String name, String address, String description, List<String> extraServices, String branch) {
-        this.name = name;
-        this.address = address;
-        this.extraServices = extraServices;
-        this.branch=branch;
-        this.description = description;
-    }
+
 
     protected Station() {
     }
@@ -56,8 +51,8 @@ public class Station extends BaseEntity {
     public Set<StationAttractions> getAttractions() {
         return attractions;
     }
-
-    @Column(name = "extra_services", nullable = false)
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "extra_services",columnDefinition = "text[]", nullable = false)
 
     public List<String> getExtraServices() {
         return extraServices;
@@ -78,15 +73,6 @@ public class Station extends BaseEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-    @Column(name = "built_at", nullable = false)
-
-    public String getBuiltAt() {
-        return builtAt;
-    }
-
-    public void setBuiltAt(String builtAt) {
-        this.builtAt = builtAt;
     }
 
     @Column(name = "branch", nullable = false)

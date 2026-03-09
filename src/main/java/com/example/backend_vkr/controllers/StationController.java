@@ -1,18 +1,16 @@
 package com.example.backend_vkr.controllers;
 
 
-import com.example.backend_vkr.models.AttractionInfoResponse;
-import com.example.backend_vkr.models.AttractionResponse;
-import com.example.backend_vkr.models.PagedResponse;
-import com.example.backend_vkr.models.StationResponse;
+import com.example.backend_vkr.models.*;
 import com.example.backend_vkr.services.AttractionService;
 import com.example.backend_vkr.services.StationService;
+import jakarta.validation.Valid;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-@EnableCaching
+//@EnableCaching
 @RestController
 public class StationController implements StationApi {
 
@@ -26,21 +24,26 @@ public class StationController implements StationApi {
     }
 
 
-    @Cacheable(value = "station")
+   // @Cacheable(value = "station")
     @Override
     public StationResponse getStationInfo(String stationName, String branch) {
         return stationService.getStationByNameAndBranch(stationName,branch);
     }
-    @Cacheable(value = "stationAttractions")
+   // @Cacheable(value = "stationAttractions")
     @Override
     public PagedResponse<AttractionResponse> getStationAttractions(Long id, int page, int size) {
         return attractionService.getStationAttractions(id,page,size);
 
     }
 
-    @Cacheable(value = "attraction")
+   // @Cacheable(value = "attraction")
     @Override
     public AttractionInfoResponse getAttraction(Long id) {
         return attractionService.findAttractionById(id);
+    }
+
+    @Override
+    public AttractionInfoResponse addAttraction(@Valid AttractionRequest request) {
+        return attractionService.addAttraction(request);
     }
 }

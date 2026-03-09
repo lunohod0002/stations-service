@@ -43,7 +43,7 @@ public class Attraction extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "attraction", targetEntity = StationAttractions.class,
-            fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+            fetch = FetchType.LAZY, cascade =  CascadeType.ALL)
     public Set<StationAttractions> getStationAttractions() {
         return stationAttractions;
     }

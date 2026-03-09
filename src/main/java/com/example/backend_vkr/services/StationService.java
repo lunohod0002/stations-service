@@ -43,7 +43,7 @@ public class StationService {
         Page<StationAttractions> attractions = attractionRepository.findAllStationAttractions(  station.getId(),pageable);
         List<AttractionResponse> attractionResponses = attractions.stream().map(
                 stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(),stationAttraction.getAttraction().getAddress())).toList() ;
-        return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getBuiltAt(), station.getDescription(), photos,videos,audios,attractionResponses);
+        return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getDescription(), photos,videos,audios,station.getExtraServices(),attractionResponses);
     }
 
 
