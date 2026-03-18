@@ -44,7 +44,7 @@ public class StationController implements StationAPI {
     }
 
     @Override
-    public AttractionInfoResponse addAttraction(@Valid AttractionRequest request) {
+    public AttractionCreatedResponse addAttraction(@Valid AttractionRequest request) {
         return attractionService.addAttraction(request);
     }
 }

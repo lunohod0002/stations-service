@@ -1,6 +1,7 @@
 package com.example.backend_vkr.controllers;
 
 
+import com.example.backend_vkr.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -89,5 +90,5 @@ public interface StationAPI {
     )})
     @PostMapping({"/attractions"})
     @ResponseStatus(HttpStatus.CREATED)
-    AttractionInfoResponse addAttraction(@RequestBody @Valid AttractionRequest request);
+    AttractionCreatedResponse addAttraction(@RequestBody @Valid AttractionRequest request);
 }
