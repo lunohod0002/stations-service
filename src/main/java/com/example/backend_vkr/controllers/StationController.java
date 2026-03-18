@@ -1,7 +1,8 @@
 package com.example.backend_vkr.controllers;
 
 
-import com.example.backend_vkr.models.*;
+
+import com.example.backend_vkr.dto.*;
 import com.example.backend_vkr.services.AttractionService;
 import com.example.backend_vkr.services.StationService;
 import jakarta.validation.Valid;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 //@EnableCaching
 @RestController
-public class StationController implements StationApi {
+public class StationController implements StationAPI {
 
     private final StationService stationService;
     private final AttractionService attractionService;

@@ -1,12 +1,13 @@
 package com.example.backend_vkr.services;
 
+import com.example.backend_vkr.dto.AttractionResponse;
+import com.example.backend_vkr.dto.StationResponse;
 import com.example.backend_vkr.entities.Attraction;
 import com.example.backend_vkr.entities.Station;
 import com.example.backend_vkr.entities.StationAttractions;
 import com.example.backend_vkr.entities.enums.MediaType;
-import com.example.backend_vkr.exception.ResourceNotFoundException;
-import com.example.backend_vkr.models.AttractionResponse;
-import com.example.backend_vkr.models.StationResponse;
+
+import com.example.backend_vkr.exceptions.ResourceNotFoundException;
 import com.example.backend_vkr.repositories.AttractionRepository;
 import com.example.backend_vkr.repositories.MediaRepository;
 import com.example.backend_vkr.repositories.StationRepository;

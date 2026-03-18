@@ -73,13 +73,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>stations-service</artifactId>
-			<version>3.4</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/stations-service-api.jar</systemPath>
-		</dependency>
+
 	</dependencies>
 
 	<build>
