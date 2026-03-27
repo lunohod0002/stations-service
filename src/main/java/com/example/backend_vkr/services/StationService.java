@@ -3,6 +3,7 @@ package com.example.backend_vkr.services;
 import com.example.backend_vkr.dto.AttractionResponse;
 import com.example.backend_vkr.dto.StationResponse;
 import com.example.backend_vkr.entities.Attraction;
+import com.example.backend_vkr.entities.ExtraService;
 import com.example.backend_vkr.entities.Station;
 import com.example.backend_vkr.entities.StationAttractions;
 import com.example.backend_vkr.entities.enums.MediaType;
@@ -44,7 +45,7 @@ public class StationService {
         Page<StationAttractions> attractions = attractionRepository.findAllStationAttractions(  station.getId(),pageable);
         List<AttractionResponse> attractionResponses = attractions.stream().map(
                 stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(),stationAttraction.getAttraction().getAddress())).toList() ;
-        return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getDescription(), photos,videos,audios,station.getExtraServices(),attractionResponses);
+        return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getDescription(), photos,videos,audios,station.getExtraServices().stream().map(ExtraService::getName).toList(),attractionResponses);
     }
 
 

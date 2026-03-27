@@ -14,17 +14,17 @@ import java.util.Set;
 public class Station extends BaseEntity {
     private String name;
     private String branch;
-    private List<String> extraServices;
+    private List<ExtraService> extraServices;
 
     private String address;
     private String description;
     private Set<Media> medias;
     private Set<StationAttractions> attractions;
 
-    public Station(String address, String description, List<String> extraServices, String branch, String name) {
+    public Station(String address,List<ExtraService> extraServices, String description, String branch, String name) {
         this.address = address;
         this.description = description;
-        this.extraServices = extraServices;
+        this.extraServices=extraServices;
         this.branch = branch;
         this.name = name;
     }
@@ -51,14 +51,12 @@ public class Station extends BaseEntity {
     public Set<StationAttractions> getAttractions() {
         return attractions;
     }
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(name = "extra_services",columnDefinition = "text[]", nullable = false)
 
-    public List<String> getExtraServices() {
+    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<ExtraService> getExtraServices() {
         return extraServices;
     }
-
-    public void setExtraServices(List<String> extraServices) {
+    public void setExtraServices(List<ExtraService> extraServices) {
         this.extraServices = extraServices;
     }
 
