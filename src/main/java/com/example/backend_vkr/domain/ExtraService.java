@@ -1,4 +1,4 @@
-package com.example.backend_vkr.business;
+package com.example.backend_vkr.domain;
 
 
 import jakarta.persistence.*;

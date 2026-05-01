@@ -1,8 +1,7 @@
 package com.example.backend_vkr.data;
 
-import com.example.backend_vkr.business.Station;
-import com.example.backend_vkr.business.repositories.StationAttractionsRepository;
-import com.example.backend_vkr.business.repositories.StationRepository;
+import com.example.backend_vkr.domain.Station;
+import com.example.backend_vkr.domain.repositories.StationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

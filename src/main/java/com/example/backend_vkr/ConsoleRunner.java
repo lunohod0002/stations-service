@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
-@Component
+//@Component
 public class ConsoleRunner implements CommandLineRunner {
     public void setDataSource(String url) {
         String user = "postgres";

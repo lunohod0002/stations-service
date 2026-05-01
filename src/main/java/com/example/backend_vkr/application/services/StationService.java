@@ -2,12 +2,12 @@ package com.example.backend_vkr.application.services;
 
 import com.example.backend_vkr.application.dto.AttractionResponse;
 import com.example.backend_vkr.application.dto.StationResponse;
-import com.example.backend_vkr.business.ExtraService;
-import com.example.backend_vkr.business.Station;
-import com.example.backend_vkr.business.StationAttractions;
-import com.example.backend_vkr.business.enums.MediaType;
+import com.example.backend_vkr.domain.ExtraService;
+import com.example.backend_vkr.domain.Station;
+import com.example.backend_vkr.domain.StationAttractions;
+import com.example.backend_vkr.domain.enums.MediaType;
 
-import com.example.backend_vkr.business.exceptions.ResourceNotFoundException;
+import com.example.backend_vkr.domain.exceptions.ResourceNotFoundException;
 import com.example.backend_vkr.data.JPAAttractionRepository;
 import com.example.backend_vkr.data.JPAMediaRepository;
 import com.example.backend_vkr.data.JPAStationRepository;
@@ -43,7 +43,7 @@ public class StationService {
 
         Page<StationAttractions> attractions = JPAAttractionRepository.findAllStationAttractions(  station.getId(),pageable);
         List<AttractionResponse> attractionResponses = attractions.stream().map(
-                stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(),stationAttraction.getAttraction().getAddress())).toList() ;
+                stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(), stationAttraction.getAttraction().getMedias().stream().toList().getFirst().getUrlRef())).toList() ;
         return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getDescription(), photos,videos,audios,station.getExtraServices().stream().map(ExtraService::getName).toList(),attractionResponses);
     }
 

@@ -1,4 +1,4 @@
-package com.example.backend_vkr.business.enums;
+package com.example.backend_vkr.domain.enums;
 
 public enum MediaType {
     PHOTO,

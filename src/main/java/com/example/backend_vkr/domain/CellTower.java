@@ -1,10 +1,7 @@
-package com.example.backend_vkr.business;
+package com.example.backend_vkr.domain;
 
 
 import jakarta.persistence.*;
-
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "cell_towers")

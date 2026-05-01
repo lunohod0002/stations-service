@@ -1,4 +1,4 @@
-package com.example.backend_vkr.business.exceptions;
+package com.example.backend_vkr.domain.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String resourceName, Object resourceId) {

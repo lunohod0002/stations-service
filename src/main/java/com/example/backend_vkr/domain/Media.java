@@ -1,7 +1,7 @@
-package com.example.backend_vkr.business;
+package com.example.backend_vkr.domain;
 
 
-import com.example.backend_vkr.business.enums.MediaType;
+import com.example.backend_vkr.domain.enums.MediaType;
 import jakarta.persistence.*;
 
 import java.util.Set;

@@ -1,7 +1,7 @@
 package com.example.backend_vkr.data;
 
-import com.example.backend_vkr.business.StationAttractions;
-import com.example.backend_vkr.business.repositories.StationAttractionsRepository;
+import com.example.backend_vkr.domain.StationAttractions;
+import com.example.backend_vkr.domain.repositories.StationAttractionsRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

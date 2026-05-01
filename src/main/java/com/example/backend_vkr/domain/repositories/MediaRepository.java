@@ -1,8 +1,6 @@
-package com.example.backend_vkr.business.repositories;
+package com.example.backend_vkr.domain.repositories;
 
-import com.example.backend_vkr.business.Media;
-import com.example.backend_vkr.business.enums.MediaType;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.backend_vkr.domain.enums.MediaType;
 
 import java.util.List;
 

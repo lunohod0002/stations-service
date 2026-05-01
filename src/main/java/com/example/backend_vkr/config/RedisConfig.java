@@ -1,4 +1,4 @@
-package com.example.backend_vkr.data.config;
+package com.example.backend_vkr.config;
 
 
 import org.springframework.beans.factory.annotation.Value;

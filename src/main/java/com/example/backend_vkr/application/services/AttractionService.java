@@ -2,11 +2,11 @@ package com.example.backend_vkr.application.services;
 
 import com.example.backend_vkr.application.dto.*;
 
-import com.example.backend_vkr.business.Attraction;
-import com.example.backend_vkr.business.Media;
-import com.example.backend_vkr.business.Station;
-import com.example.backend_vkr.business.StationAttractions;
-import com.example.backend_vkr.business.enums.MediaType;
+import com.example.backend_vkr.domain.Attraction;
+import com.example.backend_vkr.domain.Media;
+import com.example.backend_vkr.domain.Station;
+import com.example.backend_vkr.domain.StationAttractions;
+import com.example.backend_vkr.domain.enums.MediaType;
 import com.example.backend_vkr.data.JPAAttractionRepository;
 import com.example.backend_vkr.data.JPAMediaRepository;
 import com.example.backend_vkr.data.JPAStationAttractionsRepository;
@@ -48,7 +48,7 @@ public class AttractionService {
 
 
         List<AttractionResponse> pagedContent = attractions.stream().map(
-                stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(), stationAttraction.getDistance(), stationAttraction.getAttraction().getName(), stationAttraction.getAttraction().getPrice(), stationAttraction.getAttraction().getAddress())).toList();
+                stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(), stationAttraction.getDistance(), stationAttraction.getAttraction().getName(), stationAttraction.getAttraction().getPrice(), stationAttraction.getAttraction().getMedias().stream().toList().getFirst().getUrlRef())).toList();
         return new PagedResponse<>(pagedContent, page, size, attractions.getTotalElements(), attractions.getTotalPages(), page >= attractions.getTotalPages() - 1);
 
     }

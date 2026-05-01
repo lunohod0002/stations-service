@@ -1,4 +1,4 @@
-package com.example.backend_vkr.presentation;
+package com.example.backend_vkr.controllers;
 
 
 import com.example.backend_vkr.application.dto.*;
