@@ -60,7 +60,7 @@ public class AttractionService {
         List<String> videos = JPAMediaRepository.findAllAttractionMediasByType(MediaType.VIDEO, id);
         List<String> audios = JPAMediaRepository.findAllAttractionMediasByType(MediaType.AUDIO, id);
 
-        return new AttractionInfoResponse(id, attraction.getName(), attraction.getAddress(), attraction.getWorkingHours(), attraction.getDescription(), attraction.getPrice(), attraction.getUrlRef(), photos, videos, audios);
+        return new AttractionInfoResponse(id, attraction.getName(),attraction.getPhoneNumber() ,attraction.getEmail(),attraction.getAddress(), attraction.getWorkingHours(), attraction.getDescription(), attraction.getPrice(), attraction.getUrlRef(), photos, videos, audios);
     }
 
     @Transactional

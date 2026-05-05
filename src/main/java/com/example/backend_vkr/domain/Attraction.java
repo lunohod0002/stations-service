@@ -13,7 +13,7 @@ public class Attraction extends BaseEntity {
     private String phoneNumber;
     private String email;
     private String workingHours;
-    private int price;
+    private Integer price;
     private String urlRef;
     private Set<Media> medias;
     private Set<StationAttractions> stationAttractions;
@@ -21,7 +21,7 @@ public class Attraction extends BaseEntity {
     protected Attraction() {
     }
 
-    public Attraction(String name, String phoneNumber, String email,String address, String description, String workingHours, int price, String urlRef) {
+    public Attraction(String name, String phoneNumber, String email,String address, String description, String workingHours, Integer price, String urlRef) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
@@ -113,11 +113,11 @@ public class Attraction extends BaseEntity {
     }
     @Column(name = "price")
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
     @Column(name = "url_ref")
