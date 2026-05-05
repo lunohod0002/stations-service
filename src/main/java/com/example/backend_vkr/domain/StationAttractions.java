@@ -9,9 +9,9 @@ import jakarta.persistence.*;
 public class StationAttractions {
     private Station station;
     private Attraction attraction;
-    private String distance;
+    private int distance;
 
-    public StationAttractions( Station station, Attraction attraction, String distance) {
+    public StationAttractions( Station station, Attraction attraction, int distance) {
         this.station = station;
         this.attraction = attraction;
         this.distance = distance;
@@ -24,11 +24,11 @@ public class StationAttractions {
 
 
     @Column(name = "distance")
-    public String getDistance() {
+    public int getDistance() {
         return distance;
     }
 
-    public void setDistance(String distance) {
+    public void setDistance(int distance) {
         this.distance = distance;
     }
     @ManyToOne
