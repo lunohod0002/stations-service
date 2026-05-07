@@ -81,7 +81,7 @@ public class AttractionService {
 
         Set<Media> mediaSet = request.medias().stream()
                 .map(req -> {
-                    Media media = new Media(req.type(), req.name(), req.source(), req.urlRef());
+                    Media media = new Media(req.type(), null, req.urlRef());
                     media.setAttractions(Set.of(attraction));
                     return media;
                 })

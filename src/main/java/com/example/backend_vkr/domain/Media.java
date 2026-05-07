@@ -15,11 +15,10 @@ public class Media extends BaseEntity {
     private String urlRef;
     private Set<Station> stations;
     private Set<Attraction> attractions;
-    private String source;
-    public Media(MediaType type, String name,String source, String urlRef) {
+
+    public Media(MediaType type, String name, String urlRef) {
         this.type = type;
         this.name = name;
-        this.source= source;
         this.urlRef = urlRef;
     }
 
@@ -29,14 +28,7 @@ public class Media extends BaseEntity {
 
 
 
-    @Column(name = "source", nullable = false,columnDefinition = "TEXT")
-    public String getSource() {
-        return source;
-    }
 
-    public void setSource(String source) {
-        this.source = source;
-    }
     @Column(name = "name")
     public String getName() {
         return name;
