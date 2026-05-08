@@ -43,14 +43,29 @@ public class AttractionService {
     public PagedResponse<AttractionResponse> getStationAttractions(Long stationId, int page, int size) {
         JPAStationRepository.findById(stationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", stationId));
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("distance"));
         Page<StationAttractions> attractions = JPAAttractionRepository.findAllStationAttractions(stationId, pageable);
 
+        List<AttractionResponse> pagedContent = attractions.stream().map(stationAttraction -> {
+            Attraction attraction = stationAttraction.getAttraction();
 
-        List<AttractionResponse> pagedContent = attractions.stream().map(
-                stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(), stationAttraction.getDistance(), stationAttraction.getAttraction().getName(), stationAttraction.getAttraction().getPrice(), stationAttraction.getAttraction().getMedias().stream().toList().getFirst().getUrlRef())).toList();
+            String photoUrl = attraction.getMedias() == null ? null : attraction.getMedias().stream()
+                                                                      .filter(media -> media.getType() == MediaType.PHOTO)
+                                                                      .findFirst()
+                                                                      .map(Media::getUrlRef)
+                                                                      .orElse(null);
+
+            return new AttractionResponse(
+                    attraction.getId(),
+                    stationAttraction.getDistance(),
+                    attraction.getName(),
+                    attraction.getPrice(),
+                    photoUrl
+            );
+        }).toList();
+
         return new PagedResponse<>(pagedContent, page, size, attractions.getTotalElements(), attractions.getTotalPages(), page >= attractions.getTotalPages() - 1);
-
     }
 
     public AttractionInfoResponse findAttractionById(Long id) {

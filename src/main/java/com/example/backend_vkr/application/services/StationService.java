@@ -2,9 +2,7 @@ package com.example.backend_vkr.application.services;
 
 import com.example.backend_vkr.application.dto.AttractionResponse;
 import com.example.backend_vkr.application.dto.StationResponse;
-import com.example.backend_vkr.domain.ExtraService;
-import com.example.backend_vkr.domain.Station;
-import com.example.backend_vkr.domain.StationAttractions;
+import com.example.backend_vkr.domain.*;
 import com.example.backend_vkr.domain.enums.MediaType;
 
 import com.example.backend_vkr.domain.exceptions.ResourceNotFoundException;
@@ -42,9 +40,25 @@ public class StationService {
         Pageable pageable = PageRequest.of(0, 5, Sort.by("distance"));
 
         Page<StationAttractions> attractions = JPAAttractionRepository.findAllStationAttractions(  station.getId(),pageable);
-        List<AttractionResponse> attractionResponses = attractions.stream().map(
-                stationAttraction -> new AttractionResponse(stationAttraction.getAttraction().getId(),stationAttraction.getDistance(),stationAttraction.getAttraction().getName(),stationAttraction.getAttraction().getPrice(), stationAttraction.getAttraction().getMedias().stream().toList().getFirst().getUrlRef())).toList() ;
-        return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getDescription(), photos,videos,audios,station.getExtraServices().stream().map(ExtraService::getName).toList(),attractionResponses);
+        List<AttractionResponse> stationAttractions = attractions.stream().map(stationAttraction -> {
+            Attraction attraction = stationAttraction.getAttraction();
+
+            String photoUrl = attraction.getMedias() == null ? null : attraction.getMedias().stream()
+                                                                      .filter(media -> media.getType() == MediaType.PHOTO)
+                                                                      .findFirst()
+                                                                      .map(Media::getUrlRef)
+                                                                      .orElse(null);
+
+            return new AttractionResponse(
+                    attraction.getId(),
+                    stationAttraction.getDistance(),
+                    attraction.getName(),
+                    attraction.getPrice(),
+                    photoUrl
+            );
+        }).toList();
+
+        return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getDescription(), photos,videos,audios,station.getExtraServices().stream().map(ExtraService::getName).toList(),stationAttractions);
     }
 
 
