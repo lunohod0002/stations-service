@@ -1,8 +1,8 @@
 package com.example.backend_vkr.application.dto;
 
 public record StationAttractionRequest(
-        String name,
+        String stationName,
         String branch,
-        int duration
+        int distance
 ) {}
 

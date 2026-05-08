@@ -67,9 +67,9 @@ public class AttractionService {
     public AttractionCreatedResponse addAttraction(AttractionRequest request) {
         List<StationAttractions> stationLinks = request.stationAttractions().stream()
                 .map(req -> {
-                    Station station = JPAStationRepository.findByNameAndBranch(req.name(), req.branch())
-                            .orElseThrow(() -> new ResourceNotFoundException("Station", req.branch() + " " + req.name()));
-                    return new StationAttractions(station, null, req.duration());
+                    Station station = JPAStationRepository.findByNameAndBranch(req.stationName(), req.branch())
+                            .orElseThrow(() -> new ResourceNotFoundException("Station", req.branch() + " " + req.stationName()));
+                    return new StationAttractions(station, null, req.distance());
                 })
                 .toList();
 
@@ -78,7 +78,7 @@ public class AttractionService {
                 request.address(), request.description(), request.workingHours(),
                 request.price(), request.urlRef()
         );
-
+        System.out.println(request.medias());
         Set<Media> mediaSet = request.medias().stream()
                 .map(req -> {
                     Media media = new Media(req.type(), null, req.urlRef());
