@@ -13,7 +13,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext.Seria
 
 import java.time.Duration;
 
-//@Configuration
+@Configuration
 public class RedisConfig {
     @Value("${redis.host}")
     private String redisHost;
