@@ -13,12 +13,10 @@ public class Station extends BaseEntity {
     private String name;
     private String branch;
     private List<ExtraService> extraServices;
-
     private String address;
     private String description;
     private Set<Media> medias;
     private Set<StationAttractions> attractions;
-
     public Station(String address,List<ExtraService> extraServices, String description, String branch, String name) {
         this.address = address;
         this.description = description;
@@ -26,9 +24,6 @@ public class Station extends BaseEntity {
         this.branch = branch;
         this.name = name;
     }
-
-
-
     protected Station() {
     }
     @ManyToMany
@@ -39,7 +34,6 @@ public class Station extends BaseEntity {
     public Set<Media> getMedias() {
         return medias;
     }
-
     public void setMedias(Set<Media> medias) {
         this.medias = medias;
     }

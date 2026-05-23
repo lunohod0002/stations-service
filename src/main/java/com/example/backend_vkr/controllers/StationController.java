@@ -10,7 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.web.bind.annotation.RestController;
 
-@EnableCaching
+//@EnableCaching
 @RestController
 public class StationController implements StationAPI {
 
@@ -24,19 +24,19 @@ public class StationController implements StationAPI {
     }
 
 
-   @Cacheable(value = "station")
+   //@Cacheable(value = "station")
     @Override
     public StationResponse getStationInfo(String stationName, String branch) {
         return stationService.getStationByNameAndBranch(stationName,branch);
     }
-   @Cacheable(value = "stationAttractions")
+  // @Cacheable(value = "stationAttractions")
     @Override
     public PagedResponse<AttractionResponse> getStationAttractions(Long id, int page, int size) {
         return attractionService.getStationAttractions(id,page,size);
 
     }
 
-   @Cacheable(value = "attraction")
+ //  @Cacheable(value = "attraction")
     @Override
     public AttractionInfoResponse getAttraction(Long id) {
         return attractionService.findAttractionById(id);
