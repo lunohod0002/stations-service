@@ -29,9 +29,7 @@ public class AttractionService {
     private final JPAMediaRepository JPAMediaRepository;
     private final JPAAttractionRepository JPAAttractionRepository;
     private final JPAStationAttractionsRepository stationAttractionRepository;
-
     private final JPAStationRepository JPAStationRepository;
-
     @Autowired
     public AttractionService(JPAMediaRepository JPAMediaRepository, JPAStationAttractionsRepository stationAttractionRepository, JPAAttractionRepository JPAAttractionRepository, JPAStationRepository JPAStationRepository) {
         this.JPAMediaRepository = JPAMediaRepository;
@@ -39,23 +37,19 @@ public class AttractionService {
         this.stationAttractionRepository = stationAttractionRepository;
         this.JPAStationRepository = JPAStationRepository;
     }
-
     public PagedResponse<AttractionResponse> getStationAttractions(Long stationId, int page, int size) {
         JPAStationRepository.findById(stationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", stationId));
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("distance"));
         Page<StationAttractions> attractions = JPAAttractionRepository.findAllStationAttractions(stationId, pageable);
-
         List<AttractionResponse> pagedContent = attractions.stream().map(stationAttraction -> {
             Attraction attraction = stationAttraction.getAttraction();
-
             String photoUrl = attraction.getMedias() == null ? null : attraction.getMedias().stream()
                                                                       .filter(media -> media.getType() == MediaType.PHOTO)
                                                                       .findFirst()
                                                                       .map(Media::getUrlRef)
                                                                       .orElse(null);
-
             return new AttractionResponse(
                     attraction.getId(),
                     stationAttraction.getDistance(),
