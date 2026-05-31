@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,30 +39,46 @@ public class AttractionService {
         this.JPAStationRepository = JPAStationRepository;
     }
     public PagedResponse<AttractionResponse> getStationAttractions(Long stationId, int page, int size) {
-        JPAStationRepository.findById(stationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", stationId));
+        if (!JPAStationRepository.existsById(stationId)) {
+            throw new ResourceNotFoundException("Станция не найдена:", stationId);
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("distance"));
-        Page<StationAttractions> attractions = JPAAttractionRepository.findAllStationAttractions(stationId, pageable);
-        List<AttractionResponse> pagedContent = attractions.stream().map(stationAttraction -> {
-            Attraction attraction = stationAttraction.getAttraction();
-            String photoUrl = attraction.getMedias() == null ? null : attraction.getMedias().stream()
-                                                                      .filter(media -> media.getType() == MediaType.PHOTO)
-                                                                      .findFirst()
-                                                                      .map(Media::getUrlRef)
-                                                                      .orElse(null);
-            return new AttractionResponse(
-                    attraction.getId(),
-                    stationAttraction.getDistance(),
-                    attraction.getName(),
-                    attraction.getPrice(),
-                    photoUrl
-            );
-        }).toList();
+        Page<StationAttractions> attractionsPage =
+                JPAAttractionRepository.findAllStationAttractions(stationId, pageable);
 
-        return new PagedResponse<>(pagedContent, page, size, attractions.getTotalElements(), attractions.getTotalPages(), page >= attractions.getTotalPages() - 1);
+        List<Long> attractionIds = attractionsPage.stream()
+                .map(sa -> sa.getAttraction().getId())
+                .toList();
+
+        Map<Long, String> photoByAttractionId = attractionIds.isEmpty()
+                ? Map.of()
+                : JPAMediaRepository.findPhotosByAttractionIds(attractionIds, MediaType.PHOTO).stream()
+                  .collect(Collectors.toMap(
+                          AttractionPhoto::attractionId,
+                          AttractionPhoto::urlRef,
+                          (first, second) -> first));
+
+        List<AttractionResponse> content = attractionsPage.stream()
+                .map(sa -> {
+                    Attraction attraction = sa.getAttraction();
+                    return new AttractionResponse(
+                            attraction.getId(),
+                            sa.getDistance(),
+                            attraction.getName(),
+                            attraction.getPrice(),
+                            photoByAttractionId.get(attraction.getId()));
+                })
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                attractionsPage.getNumber(),
+                attractionsPage.getSize(),
+                attractionsPage.getTotalElements(),
+                attractionsPage.getTotalPages(),
+                attractionsPage.isLast());
     }
-
     public AttractionInfoResponse findAttractionById(Long id) {
         Attraction attraction = JPAAttractionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));

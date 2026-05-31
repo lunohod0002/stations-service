@@ -8,7 +8,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "stations",uniqueConstraints = { @UniqueConstraint( columnNames = { "name", "branch" } ) })
-
 public class Station extends BaseEntity {
     private String name;
     private String branch;

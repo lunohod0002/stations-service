@@ -12,7 +12,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JPAAttractionRepository extends JpaRepository<Attraction,Long>, AttractionRepository {
-    @Query("SELECT sa " +
-            "FROM StationAttractions sa WHERE sa.station.id = :stationId")
-    Page<StationAttractions> findAllStationAttractions(@Param("stationId") Long stationId, Pageable pageable);
-}
+    @Query(value = "SELECT sa FROM StationAttractions sa " +
+            "JOIN FETCH sa.attraction " +
+            "WHERE sa.station.id = :stationId",
+            countQuery = "SELECT COUNT(sa) FROM StationAttractions sa " +
+                    "WHERE sa.station.id = :stationId")
+    Page<StationAttractions> findAllStationAttractions(@Param("stationId") Long stationId, Pageable pageable);}

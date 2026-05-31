@@ -29,8 +29,6 @@ public class StationService {
         this.JPAMediaRepository = JPAMediaRepository;
         this.JPAAttractionRepository = JPAAttractionRepository;
     }
-
-
     public StationResponse getStationByNameAndBranch(String name, String branch) {
         Station station = JPAStationRepository.findByNameAndBranch(name, branch)
                 .orElseThrow(() -> new ResourceNotFoundException("Станция не найдена:", name));
@@ -38,17 +36,14 @@ public class StationService {
         List<String> videos= JPAMediaRepository.findAllStationMediasByType(MediaType.VIDEO,station.getId());
         List<String> audios= JPAMediaRepository.findAllStationMediasByType(MediaType.AUDIO,station.getId());
         Pageable pageable = PageRequest.of(0, 5, Sort.by("distance"));
-
         Page<StationAttractions> attractions = JPAAttractionRepository.findAllStationAttractions(  station.getId(),pageable);
         List<AttractionResponse> stationAttractions = attractions.stream().map(stationAttraction -> {
             Attraction attraction = stationAttraction.getAttraction();
-
             String photoUrl = attraction.getMedias() == null ? null : attraction.getMedias().stream()
                                                                       .filter(media -> media.getType() == MediaType.PHOTO)
                                                                       .findFirst()
                                                                       .map(Media::getUrlRef)
                                                                       .orElse(null);
-
             return new AttractionResponse(
                     attraction.getId(),
                     stationAttraction.getDistance(),
@@ -57,7 +52,6 @@ public class StationService {
                     photoUrl
             );
         }).toList();
-
         return new StationResponse(station.getId(), station.getName(), station.getBranch(), station.getAddress(), station.getDescription(), photos,videos,audios,station.getExtraServices().stream().map(ExtraService::getName).toList(),stationAttractions);
     }
 
