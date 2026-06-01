@@ -6,5 +6,4 @@ import org.springframework.data.domain.Pageable;
 
 public interface AttractionRepository  {
 
-    Page<StationAttractions> findAllStationAttractions(Long stationId, Pageable pageable);
 }

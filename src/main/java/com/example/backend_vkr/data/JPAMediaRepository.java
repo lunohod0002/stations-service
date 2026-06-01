@@ -31,5 +31,8 @@ public interface JPAMediaRepository extends JpaRepository<Media,Long>, MediaRepo
             "FROM Media media JOIN media.stations station " +
             "WHERE station.id = :stationId")
     List<MediaProjection> findAllStationMedias(@Param("stationId") Long stationId);
+
+
+
 }
 

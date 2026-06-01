@@ -1,6 +1,5 @@
 package com.example.backend_vkr;
 
-import com.example.backend_vkr.data.JPAAttractionRepository;
 import com.example.backend_vkr.data.JPAMediaRepository;
 import com.example.backend_vkr.data.JPAStationAttractionsRepository;
 import com.example.backend_vkr.data.JPAStationRepository;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 

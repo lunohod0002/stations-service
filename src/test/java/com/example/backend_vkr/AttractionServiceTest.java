@@ -54,7 +54,7 @@ class AttractionServiceTest {
 		Page<StationAttractions> page = new PageImpl<>(List.of(link), PageRequest.of(0, 10), 1);
 
 		when(stationRepository.findById(stationId)).thenReturn(Optional.of(station));
-		when(attractionRepository.findAllStationAttractions(eq(stationId), any(Pageable.class)))
+		when(stationAttractionRepository.findAllStationAttractions(eq(stationId), any(Pageable.class)))
 				.thenReturn(page);
 
 		PagedResponse<AttractionResponse> result =

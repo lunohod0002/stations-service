@@ -45,7 +45,7 @@ public class AttractionService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("distance"));
         Page<StationAttractions> attractionsPage =
-                JPAAttractionRepository.findAllStationAttractions(stationId, pageable);
+                stationAttractionRepository.findAllStationAttractionsPage(stationId, pageable);
 
         List<Long> attractionIds = attractionsPage.stream()
                 .map(sa -> sa.getAttraction().getId())
