@@ -1,6 +1,7 @@
 package com.example.backend_vkr.data;
 
 import com.example.backend_vkr.application.dto.AttractionPhoto;
+import com.example.backend_vkr.application.dto.MediaProjection;
 import com.example.backend_vkr.domain.Media;
 import com.example.backend_vkr.domain.enums.MediaType;
 import com.example.backend_vkr.domain.repositories.MediaRepository;
@@ -25,5 +26,10 @@ public interface JPAMediaRepository extends JpaRepository<Media,Long>, MediaRepo
             "WHERE attraction.id IN :attractionIds AND media.type = :mediaType")
     List<AttractionPhoto> findPhotosByAttractionIds(@Param("attractionIds") Collection<Long> attractionIds,
                                                     @Param("mediaType") MediaType mediaType);
+
+    @Query("SELECT new com.example.dto.MediaProjection(media.type, media.urlRef) " +
+            "FROM Media media JOIN media.stations station " +
+            "WHERE station.id = :stationId")
+    List<MediaProjection> findAllStationMedias(@Param("stationId") Long stationId);
 }
 
