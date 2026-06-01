@@ -20,7 +20,7 @@ public interface JPAMediaRepository extends JpaRepository<Media,Long>, MediaRepo
     @Query("SELECT media.urlRef " +
             "FROM Media media JOIN media.attractions attraction where attraction.id = :attractionId and media.type = :mediaType ")
     List<String> findAllAttractionMediasByType(@Param("mediaType") MediaType mediaType,@Param("attractionId") Long attractionId);
-    @Query("SELECT new AttractionPhoto(attraction.id, media.urlRef) " +
+    @Query("SELECT new com.example.backend_vkr.application.dto.AttractionPhoto(attraction.id, media.urlRef) " +
             "FROM Media media JOIN media.attractions attraction " +
             "WHERE attraction.id IN :attractionIds AND media.type = :mediaType")
     List<AttractionPhoto> findPhotosByAttractionIds(@Param("attractionIds") Collection<Long> attractionIds,
