@@ -27,7 +27,7 @@ public interface JPAMediaRepository extends JpaRepository<Media,Long>, MediaRepo
     List<AttractionPhoto> findPhotosByAttractionIds(@Param("attractionIds") Collection<Long> attractionIds,
                                                     @Param("mediaType") MediaType mediaType);
 
-    @Query("SELECT new com.example.dto.MediaProjection(media.type, media.urlRef) " +
+    @Query("SELECT new com.example.backend_vkr.application.dto.MediaProjection(media.type, media.urlRef) " +
             "FROM Media media JOIN media.stations station " +
             "WHERE station.id = :stationId")
     List<MediaProjection> findAllStationMedias(@Param("stationId") Long stationId);

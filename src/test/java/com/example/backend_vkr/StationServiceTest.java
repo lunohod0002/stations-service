@@ -11,6 +11,10 @@ import com.example.backend_vkr.domain.Media;
 import com.example.backend_vkr.domain.Station;
 import com.example.backend_vkr.domain.StationAttractions;
 import com.example.backend_vkr.domain.enums.MediaType;
+import com.example.backend_vkr.domain.repositories.AttractionRepository;
+import com.example.backend_vkr.domain.repositories.MediaRepository;
+import com.example.backend_vkr.domain.repositories.StationAttractionsRepository;
+import com.example.backend_vkr.domain.repositories.StationRepository;
 import com.example.backend_vkr.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,10 +41,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class StationServiceTest {
 
-	@Mock private JPAMediaRepository mediaRepository;
-	@Mock private JPAAttractionRepository attractionRepository;
-	@Mock private JPAStationAttractionsRepository stationAttractionRepository;
-	@Mock private JPAStationRepository stationRepository;
+	@Mock private MediaRepository mediaRepository;
+	@Mock private AttractionRepository attractionRepository;
+	@Mock private StationAttractionsRepository stationAttractionRepository;
+	@Mock private StationRepository stationRepository;
 
 	@InjectMocks private AttractionService attractionService;
 
@@ -63,8 +67,8 @@ class StationServiceTest {
 		StationAttractions link = new StationAttractions(station, attraction, 300);
 		Page<StationAttractions> page = new PageImpl<>(List.of(link), PageRequest.of(0, 10), 1);
 
-		when(stationRepository.findById(stationId)).thenReturn(Optional.of(station));
-		when(stationAttractionRepository.findAllStationAttractions(eq(stationId), any(Pageable.class)))
+		when(stationRepository.existsById(stationId)).thenReturn(true);
+		when(stationAttractionRepository.findAllStationAttractionsPage(eq(stationId), any(Pageable.class)))
 				.thenReturn(page);
 
 		PagedResponse<AttractionResponse> result =

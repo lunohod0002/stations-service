@@ -5,6 +5,10 @@ import com.example.backend_vkr.application.services.AttractionService;
 import com.example.backend_vkr.data.*;
 import com.example.backend_vkr.domain.*;
 import com.example.backend_vkr.domain.enums.MediaType;
+import com.example.backend_vkr.domain.repositories.AttractionRepository;
+import com.example.backend_vkr.domain.repositories.MediaRepository;
+import com.example.backend_vkr.domain.repositories.StationAttractionsRepository;
+import com.example.backend_vkr.domain.repositories.StationRepository;
 import com.example.backend_vkr.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,10 +31,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AttractionServiceTest {
 
-	@Mock private JPAMediaRepository mediaRepository;
-	@Mock private JPAAttractionRepository attractionRepository;
-	@Mock private JPAStationAttractionsRepository stationAttractionRepository;
-	@Mock private JPAStationRepository stationRepository;
+	@Mock private MediaRepository mediaRepository;
+	@Mock private AttractionRepository attractionRepository;
+	@Mock private StationAttractionsRepository stationAttractionRepository;
+	@Mock private StationRepository stationRepository;
 
 	@InjectMocks private AttractionService attractionService;
 
@@ -47,24 +51,6 @@ class AttractionServiceTest {
 		attraction.setMedias(Set.of(photo));
 	}
 
-	@Test
-	void getStationAttractions_returnsPagedResponse() {
-		Long stationId = 1L;
-		StationAttractions link = new StationAttractions(station, attraction, 300);
-		Page<StationAttractions> page = new PageImpl<>(List.of(link), PageRequest.of(0, 10), 1);
-
-		when(stationRepository.findById(stationId)).thenReturn(Optional.of(station));
-		when(stationAttractionRepository.findAllStationAttractions(eq(stationId), any(Pageable.class)))
-				.thenReturn(page);
-
-		PagedResponse<AttractionResponse> result =
-				attractionService.getStationAttractions(stationId, 0, 10);
-
-		assertThat(result.content()).hasSize(1);
-		assertThat(result.content().getFirst().name()).isEqualTo("Музей");
-		assertThat(result.content().getFirst().distance()).isEqualTo(300);
-		assertThat(result.totalElements()).isEqualTo(1);
-	}
 
 	@Test
 	void findAttractionById_returnsAttractionInfo() {

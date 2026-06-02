@@ -11,6 +11,10 @@ import com.example.backend_vkr.data.JPAAttractionRepository;
 import com.example.backend_vkr.data.JPAMediaRepository;
 import com.example.backend_vkr.data.JPAStationAttractionsRepository;
 import com.example.backend_vkr.data.JPAStationRepository;
+import com.example.backend_vkr.domain.repositories.AttractionRepository;
+import com.example.backend_vkr.domain.repositories.MediaRepository;
+import com.example.backend_vkr.domain.repositories.StationAttractionsRepository;
+import com.example.backend_vkr.domain.repositories.StationRepository;
 import com.example.backend_vkr.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,25 +31,27 @@ import java.util.stream.Collectors;
 
 @Service
 public class AttractionService {
-    private final JPAMediaRepository JPAMediaRepository;
-    private final JPAAttractionRepository JPAAttractionRepository;
-    private final JPAStationAttractionsRepository stationAttractionRepository;
-    private final JPAStationRepository JPAStationRepository;
+    private final StationRepository stationRepository;
+    private final MediaRepository mediaRepository;
+    private final StationAttractionsRepository stationAttractionsRepository;
+    private final AttractionRepository attractionRepository;
+
     @Autowired
-    public AttractionService(JPAMediaRepository JPAMediaRepository, JPAStationAttractionsRepository stationAttractionRepository, JPAAttractionRepository JPAAttractionRepository, JPAStationRepository JPAStationRepository) {
-        this.JPAMediaRepository = JPAMediaRepository;
-        this.JPAAttractionRepository = JPAAttractionRepository;
-        this.stationAttractionRepository = stationAttractionRepository;
-        this.JPAStationRepository = JPAStationRepository;
+    public AttractionService(StationRepository stationRepository, MediaRepository mediaRepository, StationAttractionsRepository stationAttractionsRepository, AttractionRepository attractionRepository) {
+        this.stationRepository = stationRepository;
+        this.mediaRepository = mediaRepository;
+        this.stationAttractionsRepository = stationAttractionsRepository;
+        this.attractionRepository = attractionRepository;
     }
+
     public PagedResponse<AttractionResponse> getStationAttractions(Long stationId, int page, int size) {
-        if (!JPAStationRepository.existsById(stationId)) {
+        if (!stationRepository.existsById(stationId)) {
             throw new ResourceNotFoundException("Станция не найдена:", stationId);
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("distance"));
         Page<StationAttractions> attractionsPage =
-                stationAttractionRepository.findAllStationAttractionsPage(stationId, pageable);
+                stationAttractionsRepository.findAllStationAttractionsPage(stationId, pageable);
 
         List<Long> attractionIds = attractionsPage.stream()
                 .map(sa -> sa.getAttraction().getId())
@@ -53,7 +59,7 @@ public class AttractionService {
 
         Map<Long, String> photoByAttractionId = attractionIds.isEmpty()
                 ? Map.of()
-                : JPAMediaRepository.findPhotosByAttractionIds(attractionIds, MediaType.PHOTO).stream()
+                : mediaRepository.findPhotosByAttractionIds(attractionIds, MediaType.PHOTO).stream()
                   .collect(Collectors.toMap(
                           AttractionPhoto::attractionId,
                           AttractionPhoto::urlRef,
@@ -80,11 +86,11 @@ public class AttractionService {
                 attractionsPage.isLast());
     }
     public AttractionInfoResponse findAttractionById(Long id) {
-        Attraction attraction = JPAAttractionRepository.findById(id)
+        Attraction attraction = attractionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
-        List<String> photos = JPAMediaRepository.findAllAttractionMediasByType(MediaType.PHOTO, id);
-        List<String> videos = JPAMediaRepository.findAllAttractionMediasByType(MediaType.VIDEO, id);
-        List<String> audios = JPAMediaRepository.findAllAttractionMediasByType(MediaType.AUDIO, id);
+        List<String> photos = mediaRepository.findAllAttractionMediasByType(MediaType.PHOTO, id);
+        List<String> videos = mediaRepository.findAllAttractionMediasByType(MediaType.VIDEO, id);
+        List<String> audios = mediaRepository.findAllAttractionMediasByType(MediaType.AUDIO, id);
 
         return new AttractionInfoResponse(id, attraction.getName(),attraction.getPhoneNumber() ,attraction.getEmail(),attraction.getAddress(), attraction.getWorkingHours(), attraction.getDescription(), attraction.getPrice(), attraction.getUrlRef(), photos, videos, audios);
     }
@@ -93,7 +99,7 @@ public class AttractionService {
     public AttractionCreatedResponse addAttraction(AttractionRequest request) {
         List<StationAttractions> stationLinks = request.stationAttractions().stream()
                 .map(req -> {
-                    Station station = JPAStationRepository.findByNameAndBranch(req.stationName(), req.branch())
+                    Station station = stationRepository.findByNameAndBranch(req.stationName(), req.branch())
                             .orElseThrow(() -> new ResourceNotFoundException("Station", req.branch() + " " + req.stationName()));
                     return new StationAttractions(station, null, req.distance());
                 })
@@ -114,11 +120,11 @@ public class AttractionService {
                 .collect(Collectors.toSet());
 
         attraction.setMedias(mediaSet);
-       JPAAttractionRepository.save(attraction);
-        JPAMediaRepository.saveAll(mediaSet);
+       attractionRepository.save(attraction);
+        mediaRepository.saveAll(mediaSet);
 
         stationLinks.forEach(link -> link.setAttraction(attraction));
-        stationAttractionRepository.saveAll(stationLinks);
+        stationAttractionsRepository.saveAll(stationLinks);
 
         return new AttractionCreatedResponse(attraction.getId());
     }

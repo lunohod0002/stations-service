@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface StationAttractionsRepository {
-    Page<StationAttractions> findAllStationAttractions(Long stationId, Pageable pageable);
+public interface StationAttractionsRepository extends BaseRepository<StationAttractions,Long>{
+    Page<StationAttractions> findAllStationAttractionsPage(Long stationId, Pageable pageable);
     List<StationAttractions> findStationAttractions( Long stationId, Pageable pageable);
 }

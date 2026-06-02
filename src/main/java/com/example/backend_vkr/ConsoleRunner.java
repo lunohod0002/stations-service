@@ -1,5 +1,6 @@
 package com.example.backend_vkr;
 
+import com.example.backend_vkr.data.JPAAttractionRepository;
 import com.example.backend_vkr.data.JPAMediaRepository;
 import com.example.backend_vkr.data.JPAStationAttractionsRepository;
 import com.example.backend_vkr.data.JPAStationRepository;
