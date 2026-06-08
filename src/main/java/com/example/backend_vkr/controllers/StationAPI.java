@@ -71,7 +71,7 @@ public interface StationAPI {
                     )
             )}
     )})
-    @GetMapping({"/attractions/all"})
+    @GetMapping({"/attractions"})
     AttractionsResponse getAllAttractions();
 
     @Operation(

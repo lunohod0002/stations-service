@@ -93,8 +93,8 @@ public class AttractionService {
         List<String> videos = mediaRepository.findAllAttractionMediasByType(MediaType.VIDEO, id);
         List<String> audios = mediaRepository.findAllAttractionMediasByType(MediaType.AUDIO, id);
         List<StationAttractions> stationAttractions = stationAttractionsRepository.findStationAttractionsByAttraction(id);
-        List<StationAttractionRequest> stationAttractionRequests =  stationAttractions.stream().map(
-                sa->new StationAttractionRequest(
+        List<StationAttractionRequest> stationAttractionRequests = stationAttractions.stream().map(
+                sa -> new StationAttractionRequest(
                         sa.getStation().getName(),
                         sa.getStation().getBranch(),
                         sa.getDistance())).toList();
@@ -110,7 +110,7 @@ public class AttractionService {
                 photos,
                 videos,
                 audios,
-               stationAttractionRequests);
+                stationAttractionRequests);
     }
 
     @Transactional
@@ -151,17 +151,32 @@ public class AttractionService {
     }
 
     public AttractionsResponse getAllAttractions() {
-        List<Attraction> attractions = attractionRepository.findAll();
-        return new AttractionsResponse(attractions.stream().map(attraction -> new AttractionShortInfo(
-                attraction.getId(),
-                attraction.getName(),
-                attraction.getPhoneNumber(),
-                attraction.getAddress(),
+        List<Attraction> attractions = attractionRepository.findAllWithMedias();
 
-                attraction.getEmail(), attraction.getWorkingHours(),
-                attraction.getDescription(),
-                attraction.getPrice(),
-                attraction.getUrlRef()
-        )).toList());
+        return new AttractionsResponse(attractions.stream().map(attraction -> {
+            Map<MediaType, List<String>> mediasByType = attraction.getMedias() == null
+                    ? Map.of()
+                    : attraction.getMedias().stream()
+                      .collect(Collectors.groupingBy(
+                              Media::getType,
+                              Collectors.mapping(Media::getUrlRef, Collectors.toList())
+                      ));
+
+            return new AttractionInfoResponse(
+                    attraction.getId(),
+                    attraction.getName(),
+                    attraction.getPhoneNumber(),
+                    attraction.getEmail(),
+                    attraction.getAddress(),
+                    attraction.getWorkingHours(),
+                    attraction.getDescription(),
+                    attraction.getPrice(),
+                    attraction.getUrlRef(),
+                    mediasByType.getOrDefault(MediaType.PHOTO, List.of()),
+                    mediasByType.getOrDefault(MediaType.VIDEO, List.of()),
+                    mediasByType.getOrDefault(MediaType.AUDIO, List.of()),
+                    List.of()
+            );
+        }).toList());
     }
 }
