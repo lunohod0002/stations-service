@@ -16,5 +16,7 @@ public interface MediaRepository extends BaseRepository<Media,Long>{
       List<String> findAllAttractionMediasByType(MediaType mediaType, Long attractionId);
       List<AttractionPhoto> findPhotosByAttractionIds(Collection<Long> attractionIds,
                                                       MediaType mediaType);
+      void deleteOrphansByIds(List<Long> ids);
+
       List<MediaProjection> findAllStationMedias(Long stationId);
 }

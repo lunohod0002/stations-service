@@ -13,4 +13,5 @@ public interface JPAAttractionRepository extends JpaRepository<Attraction, Long>
 
     @Query("SELECT DISTINCT a FROM Attraction a LEFT JOIN FETCH a.medias")
     List<Attraction> findAllWithMedias();
+
 }

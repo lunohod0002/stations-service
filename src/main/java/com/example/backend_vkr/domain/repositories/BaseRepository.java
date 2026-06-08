@@ -15,7 +15,8 @@ public interface BaseRepository<T, ID> {
 
     <S extends T> List<S> saveAll(Iterable<S> entities);
 
-
+    void flush();
+    void deleteAll(Iterable<? extends T> entities);
     void delete(T entity);
 
     boolean existsById(ID id);

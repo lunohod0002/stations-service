@@ -6,6 +6,7 @@ import com.example.backend_vkr.domain.Media;
 import com.example.backend_vkr.domain.enums.MediaType;
 import com.example.backend_vkr.domain.repositories.MediaRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -32,6 +33,9 @@ public interface JPAMediaRepository extends JpaRepository<Media,Long>, MediaRepo
             "WHERE station.id = :stationId")
     List<MediaProjection> findAllStationMedias(@Param("stationId") Long stationId);
 
+    @Modifying
+    @Query("DELETE FROM Media m WHERE m.id IN :ids AND m.attractions IS EMPTY")
+    void deleteOrphansByIds(@Param("ids") List<Long> ids);
 
 
 }

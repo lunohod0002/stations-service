@@ -9,6 +9,17 @@ import java.util.Set;
 @Entity
 @Table(name = "medias")
 public class Media extends BaseEntity {
+    @Override
+    public String toString() {
+        return "Media{" +
+                "type=" + type +
+                ", name='" + name + '\'' +
+                ", urlRef='" + urlRef + '\'' +
+                ", stations=" + stations +
+                ", attractions=" + attractions +
+                '}';
+    }
+
     private MediaType type;
 
     private String name;

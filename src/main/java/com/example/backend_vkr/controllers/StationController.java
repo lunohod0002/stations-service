@@ -30,7 +30,12 @@ public class StationController implements StationAPI {
         return stationService.getStationByNameAndBranch(stationName,branch);
     }
 
-   // @Cacheable(value = "allStations")
+    @Override
+    public AttractionInfoResponse updateAttraction(Long id, @Valid AttractionRequest request) {
+        return attractionService.updateAttraction(id, request);
+    }
+
+    // @Cacheable(value = "allStations")
 
     @Override
     public StationsResponse getAllStations() {

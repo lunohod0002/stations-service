@@ -36,7 +36,18 @@ public interface StationAPI {
     )})
     @GetMapping({"/stations"})
     StationResponse getStationInfo(@RequestParam("stationName") String stationName, @RequestParam("branch") String branch);
-
+    @Operation(summary = "Обновить достопримечательность")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Достопримечательность обновлена"),
+            @ApiResponse(responseCode = "404", description = "Достопримечательность не найдена",
+                    content = @Content(schema = @Schema(implementation = StatusResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Невалидный запрос",
+                    content = @Content(schema = @Schema(implementation = StatusResponse.class)))
+    })
+    @PutMapping("/attractions/{attractionId}")
+    AttractionInfoResponse updateAttraction(
+            @PathVariable("attractionId") Long id,
+            @RequestBody @Valid AttractionRequest request);
     @Operation(
             summary = "Получить все станции"
     )

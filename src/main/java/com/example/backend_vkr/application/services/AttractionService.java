@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,7 +113,71 @@ public class AttractionService {
                 audios,
                 stationAttractionRequests);
     }
+    @Transactional
+    public AttractionInfoResponse updateAttraction(Long id, AttractionRequest request) {
+        Attraction attraction = attractionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
 
+        // 1) Простые поля
+        attraction.setName(request.name());
+        attraction.setPhoneNumber(request.phoneNumber());
+        attraction.setEmail(request.email());
+        attraction.setAddress(request.address());
+        attraction.setDescription(request.description());
+        attraction.setWorkingHours(request.workingHours());
+        attraction.setPrice(request.price());
+        attraction.setUrlRef(request.urlRef());
+
+        // 2) Запоминаем ID старых медиа ДО очистки
+        List<Long> oldMediaIds = attraction.getMedias() == null
+                ? List.of()
+                : attraction.getMedias().stream().map(Media::getId).toList();
+
+        // 3) Очищаем join-таблицу attraction_medias
+        if (attraction.getMedias() == null) {
+            attraction.setMedias(new HashSet<>());
+        } else {
+            attraction.getMedias().clear();
+        }
+
+        // 4) Добавляем новые медиа
+        Set<Media> newMedias = request.medias() == null
+                ? List.of()
+                :  request.medias().stream()
+                .map(req -> {
+                    Media media = new Media(req.type(), null, req.urlRef());
+                    media.setAttractions(Set.of(attraction));
+                    return media;
+                })
+                .collect(Collectors.toSet());
+        attraction.getMedias().addAll(newMedias);
+
+        // 5) Сбрасываем изменения в БД, чтобы join-таблица обновилась ДО проверки сирот
+        attractionRepository.flush();
+
+        // 6) Удаляем осиротевшие медиа
+        if (!oldMediaIds.isEmpty()) {
+            mediaRepository.deleteOrphansByIds(oldMediaIds);
+        }
+
+        // 7) Связи со станциями
+        List<StationAttractions> oldLinks =
+                stationAttractionsRepository.findStationAttractionsByAttraction(id);
+        stationAttractionsRepository.deleteAll(oldLinks);
+        stationAttractionsRepository.flush();
+
+        List<StationAttractions> newLinks = request.stationAttractions().stream()
+                .map(req -> {
+                    Station station = stationRepository.findByNameAndBranch(req.stationName(), req.branch())
+                            .orElseThrow(() -> new ResourceNotFoundException(
+                                    "Station", req.branch() + " " + req.stationName()));
+                    return new StationAttractions(station, attraction, req.distance());
+                })
+                .toList();
+        stationAttractionsRepository.saveAll(newLinks);
+
+        return findAttractionById(id);
+    }
     @Transactional
     public AttractionCreatedResponse addAttraction(AttractionRequest request) {
         List<StationAttractions> stationLinks = request.stationAttractions().stream()
@@ -138,7 +203,7 @@ public class AttractionService {
 
         attraction.setMedias(mediaSet);
         attractionRepository.save(attraction);
-        mediaRepository.saveAll(mediaSet);
+        System.out.println(mediaSet);
 
         stationLinks.forEach(link -> link.setAttraction(attraction));
         stationAttractionsRepository.saveAll(stationLinks);
@@ -146,8 +211,23 @@ public class AttractionService {
         return new AttractionCreatedResponse(attraction.getId());
     }
 
+    @Transactional
     public void deleteAttraction(Long id) {
-        attractionRepository.deleteById(id);
+        Attraction attraction = attractionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
+
+        List<Long> mediaIds = attraction.getMedias() == null
+                ? List.of()
+                : attraction.getMedias().stream().map(Media::getId).toList();
+
+        // Удаляем саму достопримечательность (cascade удалит записи из attraction_medias)
+        attractionRepository.delete(attraction);
+        attractionRepository.flush();
+
+        // Чистим сирот
+        if (!mediaIds.isEmpty()) {
+            mediaRepository.deleteOrphansByIds(mediaIds);
+        }
     }
 
     public AttractionsResponse getAllAttractions() {
