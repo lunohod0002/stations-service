@@ -25,7 +25,7 @@ public class Station extends BaseEntity {
     }
     protected Station() {
     }
-    @ManyToMany
+    @ManyToMany(cascade =   CascadeType.ALL)
     @JoinTable(name = "station_medias",
             joinColumns = @JoinColumn(name = "station_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "media_id",

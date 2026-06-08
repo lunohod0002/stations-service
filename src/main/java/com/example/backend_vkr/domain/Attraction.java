@@ -32,7 +32,7 @@ public class Attraction extends BaseEntity {
         this.urlRef = urlRef;
     }
 
-    @ManyToMany
+    @ManyToMany(cascade =  CascadeType.ALL )
     @JoinTable(name = "attraction_medias",
             joinColumns = @JoinColumn(name = "attraction_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "media_id",

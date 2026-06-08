@@ -55,4 +55,9 @@ public class StationController implements StationAPI {
     public AttractionCreatedResponse addAttraction(@Valid AttractionRequest request) {
         return attractionService.addAttraction(request);
     }
+
+    @Override
+    public void deleteAttraction(Long id) {
+        attractionService.deleteAttraction(id);
+    }
 }

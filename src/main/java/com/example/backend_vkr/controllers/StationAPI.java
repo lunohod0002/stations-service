@@ -111,4 +111,8 @@ public interface StationAPI {
     @PostMapping({"/attractions"})
     @ResponseStatus(HttpStatus.CREATED)
     AttractionCreatedResponse addAttraction(@RequestBody @Valid AttractionRequest request);
+
+    @DeleteMapping({"/attractions/{attractionId}"})
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deleteAttraction(@PathVariable("attractionId") Long id);
 }

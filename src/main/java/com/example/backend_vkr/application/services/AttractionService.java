@@ -128,4 +128,7 @@ public class AttractionService {
         return new AttractionCreatedResponse(attraction.getId());
     }
 
+    public void deleteAttraction(Long id) {
+        attractionRepository.deleteById(id);
+    }
 }
