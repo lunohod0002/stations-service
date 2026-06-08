@@ -47,7 +47,7 @@ public class StationService {
 
         Pageable topFive = PageRequest.of(0, 5, Sort.by("distance"));
         List<StationAttractions> stationAttractions =
-                stationAttractionsRepository.findStationAttractions(station.getId(), topFive);
+                stationAttractionsRepository.findStationAttractionsByStation(station.getId(), topFive);
 
         return new StationResponse(
                 station.getId(),

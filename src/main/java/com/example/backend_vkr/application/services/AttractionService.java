@@ -51,7 +51,7 @@ public class AttractionService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("distance"));
         Page<StationAttractions> attractionsPage =
-                stationAttractionsRepository.findAllStationAttractionsPage(stationId, pageable);
+                stationAttractionsRepository.findAllStationAttractionsByStationPage(stationId, pageable);
 
         List<Long> attractionIds = attractionsPage.stream()
                 .map(sa -> sa.getAttraction().getId())
@@ -92,8 +92,25 @@ public class AttractionService {
         List<String> photos = mediaRepository.findAllAttractionMediasByType(MediaType.PHOTO, id);
         List<String> videos = mediaRepository.findAllAttractionMediasByType(MediaType.VIDEO, id);
         List<String> audios = mediaRepository.findAllAttractionMediasByType(MediaType.AUDIO, id);
+        List<StationAttractions> stationAttractions = stationAttractionsRepository.findStationAttractionsByAttraction(id);
+        List<StationAttractionRequest> stationAttractionRequests =  stationAttractions.stream().map(
+                sa->new StationAttractionRequest(
+                        sa.getStation().getName(),
+                        sa.getStation().getBranch(),
+                        sa.getDistance())).toList();
 
-        return new AttractionInfoResponse(id, attraction.getName(), attraction.getPhoneNumber(), attraction.getEmail(), attraction.getAddress(), attraction.getWorkingHours(), attraction.getDescription(), attraction.getPrice(), attraction.getUrlRef(), photos, videos, audios);
+        return new AttractionInfoResponse(id,
+                attraction.getName(),
+                attraction.getPhoneNumber(),
+                attraction.getEmail(),
+                attraction.getAddress(),
+                attraction.getWorkingHours(),
+                attraction.getDescription(),
+                attraction.getPrice(), attraction.getUrlRef(),
+                photos,
+                videos,
+                audios,
+               stationAttractionRequests);
     }
 
     @Transactional

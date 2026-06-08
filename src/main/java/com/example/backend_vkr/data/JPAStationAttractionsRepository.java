@@ -18,12 +18,16 @@ public interface JPAStationAttractionsRepository extends JpaRepository<StationAt
             "WHERE sa.station.id = :stationId",
             countQuery = "SELECT COUNT(sa) FROM StationAttractions sa " +
                     "WHERE sa.station.id = :stationId")
-    Page<StationAttractions> findAllStationAttractionsPage(@Param("stationId") Long stationId, Pageable pageable);
+    Page<StationAttractions> findAllStationAttractionsByStationPage(@Param("stationId") Long stationId, Pageable pageable);
 
     @Query("SELECT sa FROM StationAttractions sa " +
             "JOIN FETCH sa.attraction " +
             "WHERE sa.station.id = :stationId")
-    List<StationAttractions> findStationAttractions(@Param("stationId") Long stationId, Pageable pageable);
+    List<StationAttractions> findStationAttractionsByStation(@Param("stationId") Long stationId, Pageable pageable);
+    @Query("SELECT sa FROM StationAttractions sa " +
+            "JOIN FETCH sa.station " +
+            "WHERE sa.attraction.id = :attractionId")
+    List<StationAttractions> findStationAttractionsByAttraction(@Param("attractionId") Long attractionId);
 }
 
 
