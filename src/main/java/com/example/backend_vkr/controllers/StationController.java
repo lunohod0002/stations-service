@@ -29,7 +29,16 @@ public class StationController implements StationAPI {
     public StationResponse getStationInfo(String stationName, String branch) {
         return stationService.getStationByNameAndBranch(stationName,branch);
     }
-  // @Cacheable(value = "stationAttractions")
+
+   // @Cacheable(value = "allStations")
+
+    @Override
+    public StationsResponse getAllStations() {
+        return stationService.getAllStations();
+
+    }
+
+    // @Cacheable(value = "stationAttractions")
     @Override
     public PagedResponse<AttractionResponse> getStationAttractions(Long id, int page, int size) {
         return attractionService.getStationAttractions(id,page,size);

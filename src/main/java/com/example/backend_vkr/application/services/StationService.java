@@ -1,9 +1,6 @@
 package com.example.backend_vkr.application.services;
 
-import com.example.backend_vkr.application.dto.AttractionPhoto;
-import com.example.backend_vkr.application.dto.AttractionResponse;
-import com.example.backend_vkr.application.dto.MediaProjection;
-import com.example.backend_vkr.application.dto.StationResponse;
+import com.example.backend_vkr.application.dto.*;
 import com.example.backend_vkr.domain.*;
 import com.example.backend_vkr.domain.enums.MediaType;
 
@@ -20,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,4 +89,13 @@ public class StationService {
     }
 
 
+    public StationsResponse getAllStations() {
+        List<Station> stations=stationRepository.findAll();
+        return new StationsResponse(
+        stations.stream()
+                .map(station -> new StationNameAndBranch(
+                        station.getName(),
+                        station.getBranch()))
+                .toList());
+    }
 }

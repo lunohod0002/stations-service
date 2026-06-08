@@ -52,6 +52,26 @@ public interface StationAPI {
                     )
             )}
     )})
+
+    @GetMapping({"/stations/all"})
+    StationsResponse getAllStations();
+
+    @Operation(
+            summary = "Получить все достопримечательности"
+    )
+    @ApiResponses({@ApiResponse(
+            responseCode = "200",
+            description = "Станция найдена"
+    ), @ApiResponse(
+            responseCode = "404",
+            description = "Станция не найдена",
+            content = {@Content(
+                    schema = @Schema(
+                            implementation = StatusResponse.class
+                    )
+            )}
+    )})
+
     @GetMapping({"/stations/{stationId}/attractions"})
     PagedResponse<AttractionResponse> getStationAttractions(@PathVariable("stationId") Long id, @Parameter(description = "Номер страницы (0..N)") @RequestParam(defaultValue = "0") int page, @Parameter(description = "Размер страницы") @RequestParam(defaultValue = "10") int size);
 

@@ -110,7 +110,6 @@ public class AttractionService {
                 request.address(), request.description(), request.workingHours(),
                 request.price(), request.urlRef()
         );
-        System.out.println(request.medias());
         Set<Media> mediaSet = request.medias().stream()
                 .map(req -> {
                     Media media = new Media(req.type(), null, req.urlRef());

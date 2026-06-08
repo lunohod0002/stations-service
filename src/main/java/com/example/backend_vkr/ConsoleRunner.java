@@ -100,7 +100,6 @@ public class ConsoleRunner implements CommandLineRunner {
         syncStationMediaByMatchingNameAndBranch();
 
 
-        System.out.println("Тестовые данные успешно загружены!");
     }
     private void syncStationMediaByMatchingNameAndBranch() {
         try {
