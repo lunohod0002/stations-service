@@ -38,6 +38,11 @@ public class StationController implements StationAPI {
 
     }
 
+    @Override
+    public AttractionsResponse getAllAttractions() {
+        return attractionService.getAllAttractions();
+    }
+
     // @Cacheable(value = "stationAttractions")
     @Override
     public PagedResponse<AttractionResponse> getStationAttractions(Long id, int page, int size) {

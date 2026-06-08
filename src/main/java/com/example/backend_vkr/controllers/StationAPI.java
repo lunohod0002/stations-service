@@ -38,7 +38,7 @@ public interface StationAPI {
     StationResponse getStationInfo(@RequestParam("stationName") String stationName, @RequestParam("branch") String branch);
 
     @Operation(
-            summary = "Получить достопримечательности по ID станции с фильтрацией и пагинацией"
+            summary = "Получить все станции"
     )
     @ApiResponses({@ApiResponse(
             responseCode = "200",
@@ -65,6 +65,24 @@ public interface StationAPI {
     ), @ApiResponse(
             responseCode = "404",
             description = "Станция не найдена",
+            content = {@Content(
+                    schema = @Schema(
+                            implementation = StatusResponse.class
+                    )
+            )}
+    )})
+    @GetMapping({"/attractions/all"})
+    AttractionsResponse getAllAttractions();
+
+    @Operation(
+            summary = "Получить все достопримечательности станции"
+    )
+    @ApiResponses({@ApiResponse(
+            responseCode = "200",
+            description = "Достопримечательность найдена"
+    ), @ApiResponse(
+            responseCode = "404",
+            description = "Достопримечательность не найдена",
             content = {@Content(
                     schema = @Schema(
                             implementation = StatusResponse.class

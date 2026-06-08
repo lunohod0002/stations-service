@@ -85,6 +85,7 @@ public class AttractionService {
                 attractionsPage.getTotalPages(),
                 attractionsPage.isLast());
     }
+
     public AttractionInfoResponse findAttractionById(Long id) {
         Attraction attraction = attractionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
@@ -92,7 +93,7 @@ public class AttractionService {
         List<String> videos = mediaRepository.findAllAttractionMediasByType(MediaType.VIDEO, id);
         List<String> audios = mediaRepository.findAllAttractionMediasByType(MediaType.AUDIO, id);
 
-        return new AttractionInfoResponse(id, attraction.getName(),attraction.getPhoneNumber() ,attraction.getEmail(),attraction.getAddress(), attraction.getWorkingHours(), attraction.getDescription(), attraction.getPrice(), attraction.getUrlRef(), photos, videos, audios);
+        return new AttractionInfoResponse(id, attraction.getName(), attraction.getPhoneNumber(), attraction.getEmail(), attraction.getAddress(), attraction.getWorkingHours(), attraction.getDescription(), attraction.getPrice(), attraction.getUrlRef(), photos, videos, audios);
     }
 
     @Transactional
@@ -119,7 +120,7 @@ public class AttractionService {
                 .collect(Collectors.toSet());
 
         attraction.setMedias(mediaSet);
-       attractionRepository.save(attraction);
+        attractionRepository.save(attraction);
         mediaRepository.saveAll(mediaSet);
 
         stationLinks.forEach(link -> link.setAttraction(attraction));
@@ -130,5 +131,20 @@ public class AttractionService {
 
     public void deleteAttraction(Long id) {
         attractionRepository.deleteById(id);
+    }
+
+    public AttractionsResponse getAllAttractions() {
+        List<Attraction> attractions = attractionRepository.findAll();
+        return new AttractionsResponse(attractions.stream().map(attraction -> new AttractionShortInfo(
+                attraction.getId(),
+                attraction.getName(),
+                attraction.getPhoneNumber(),
+                attraction.getAddress(),
+
+                attraction.getEmail(), attraction.getWorkingHours(),
+                attraction.getDescription(),
+                attraction.getPrice(),
+                attraction.getUrlRef()
+        )).toList());
     }
 }
