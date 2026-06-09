@@ -39,6 +39,10 @@ public class StationController implements StationAPI {
         stationService.deleteStation(id);
     }
     @Override
+    public StationResponse updateStation(Long id, UpdateStationRequest request) {
+        return stationService.updateStation(id, request);
+    }
+    @Override
     public AttractionInfoResponse updateAttraction(Long id, AttractionRequest request) {
         return attractionService.updateAttraction(id,request);
     }

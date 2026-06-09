@@ -12,7 +12,7 @@ public interface BaseRepository<T, ID> {
     List<T> findAll();
 
     void deleteById(ID id);
-
+    List<T> findAllById(Iterable<ID> ids);
     <S extends T> List<S> saveAll(Iterable<S> entities);
 
     void flush();

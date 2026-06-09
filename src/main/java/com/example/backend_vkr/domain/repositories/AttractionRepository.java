@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface AttractionRepository extends BaseRepository<Attraction,Long> {
     List<Attraction> findAllWithMedias();
+
 }

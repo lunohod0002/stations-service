@@ -24,10 +24,14 @@ public interface JPAStationAttractionsRepository extends JpaRepository<StationAt
             "JOIN FETCH sa.attraction " +
             "WHERE sa.station.id = :stationId")
     List<StationAttractions> findStationAttractionsByStation(@Param("stationId") Long stationId, Pageable pageable);
+
     @Query("SELECT sa FROM StationAttractions sa " +
             "JOIN FETCH sa.station " +
             "WHERE sa.attraction.id = :attractionId")
     List<StationAttractions> findStationAttractionsByAttraction(@Param("attractionId") Long attractionId);
+
+    List<StationAttractions> findByStationId(Long stationId);
+
 }
 
 

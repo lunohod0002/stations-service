@@ -19,6 +19,19 @@ import org.springframework.web.bind.annotation.*;
 )
 @RequestMapping({"/api"})
 public interface StationAPI {
+    @Operation(summary = "Обновить станцию")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Станция обновлена"),
+            @ApiResponse(responseCode = "404", description = "Станция не найдена",
+                    content = @Content(schema = @Schema(implementation = StatusResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Невалидный запрос",
+                    content = @Content(schema = @Schema(implementation = StatusResponse.class)))
+    })
+    @PutMapping("/stations/{stationId}")
+    StationResponse updateStation(
+            @PathVariable("stationId") Long id,
+            @RequestBody @Valid UpdateStationRequest request);
+
     @Operation(
             summary = "Получить станцию по названию и ветке"
     )

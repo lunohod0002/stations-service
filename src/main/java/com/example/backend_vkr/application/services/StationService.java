@@ -1,4 +1,5 @@
 package com.example.backend_vkr.application.services;
+import com.example.backend_vkr.domain.repositories.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend_vkr.application.dto.*;
@@ -8,10 +9,6 @@ import com.example.backend_vkr.domain.enums.MediaType;
 import com.example.backend_vkr.domain.exceptions.ResourceNotFoundException;
 import com.example.backend_vkr.data.JPAMediaRepository;
 import com.example.backend_vkr.data.JPAStationRepository;
-import com.example.backend_vkr.domain.repositories.CellTowerRepository;
-import com.example.backend_vkr.domain.repositories.MediaRepository;
-import com.example.backend_vkr.domain.repositories.StationAttractionsRepository;
-import com.example.backend_vkr.domain.repositories.StationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,17 +24,171 @@ public class StationService {
     private final MediaRepository mediaRepository;
     private final StationAttractionsRepository stationAttractionsRepository;
     private final CellTowerRepository cellTowerRepository;
+    private final AttractionRepository attractionRepository;
 
     @Autowired
     public StationService(StationRepository stationRepository,
                           MediaRepository mediaRepository,
                           StationAttractionsRepository stationAttractionsRepository,
-                          CellTowerRepository cellTowerRepository) {
+                          CellTowerRepository cellTowerRepository,
+                          AttractionRepository attractionRepository) {
         this.stationRepository = stationRepository;
         this.mediaRepository = mediaRepository;
         this.stationAttractionsRepository = stationAttractionsRepository;
         this.cellTowerRepository = cellTowerRepository;
+        this.attractionRepository = attractionRepository;
     }
+    @Transactional
+    public StationResponse updateStation(Long id, UpdateStationRequest request) {
+        Station station = stationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Станция не найдена:", String.valueOf(id)));
+
+        // Уникальность (name, branch): свои же значения разрешаем,
+        // но не даём занять пару, принадлежащую другой станции.
+        stationRepository.findByNameAndBranch(request.name(), request.branch())
+                .filter(other -> !other.getId().equals(id))
+                .ifPresent(other -> {
+                    throw new ResourceNotFoundException(
+                            "Станция уже существует: ", request.name() + " (" + request.branch() + ")");
+                });
+
+        // 1. Простые поля
+        station.setName(request.name());
+        station.setBranch(request.branch());
+        station.setDescription(request.description());
+        if (request.address() != null) {
+            station.setAddress(request.address());
+        }
+
+        // 2. Медиа — полная замена
+        updateStationMedias(station, request.media());
+
+        // 3. Вышки CellTower — полная замена
+        updateCellTowers(station, request.cellTowers());
+
+        // 4. Достопримечательности — диффинг по присланному списку
+        syncAttractionLinks(station, request.attractions());
+
+        return getStationByNameAndBranch(station.getName(), station.getBranch());
+    }
+
+    private void syncAttractionLinks(Station station, List<StationAttractionLinkRequest> incoming) {
+        // 1. Нормализуем входной список: attractionId -> distance.
+        //    Используем LinkedHashMap, чтобы при дублях побеждал последний (last-wins),
+        //    а порядок вставки оставался предсказуемым.
+        Map<Long, Integer> incomingByAttractionId = new LinkedHashMap<>();
+        if (incoming != null) {
+            for (StationAttractionLinkRequest req : incoming) {
+                incomingByAttractionId.put(req.attractionId(), req.distance());
+            }
+        }
+
+        // 2. Текущие привязки станции
+        List<StationAttractions> existing =
+                stationAttractionsRepository.findByStationId(station.getId());
+        Map<Long, StationAttractions> existingByAttractionId = existing.stream()
+                .collect(Collectors.toMap(sa -> sa.getAttraction().getId(), sa -> sa));
+
+        // 3. УДАЛЯЕМ всё, чего нет в новом списке
+        List<StationAttractions> toDelete = existing.stream()
+                .filter(sa -> !incomingByAttractionId.containsKey(sa.getAttraction().getId()))
+                .toList();
+        if (!toDelete.isEmpty()) {
+            stationAttractionsRepository.deleteAll(toDelete);
+            stationAttractionsRepository.flush(); // важно: до возможной повторной вставки
+        }
+
+        if (incomingByAttractionId.isEmpty()) {
+            return;
+        }
+
+        // 4. Заранее подгружаем Attraction-ы для будущих НОВЫХ связей (батчем, без N+1)
+        Set<Long> idsToCreate = incomingByAttractionId.keySet().stream()
+                .filter(attractionId -> !existingByAttractionId.containsKey(attractionId))
+                .collect(Collectors.toSet());
+
+        Map<Long, Attraction> newAttractionsById = Map.of();
+        if (!idsToCreate.isEmpty()) {
+            List<Attraction> found = attractionRepository.findAllById(idsToCreate);
+            if (found.size() != idsToCreate.size()) {
+                Set<Long> foundIds = found.stream().map(Attraction::getId).collect(Collectors.toSet());
+                Set<Long> missing = new HashSet<>(idsToCreate);
+                missing.removeAll(foundIds);
+                throw new ResourceNotFoundException(
+                        "Достопримечательности не найдены:", missing.toString());
+            }
+            newAttractionsById = found.stream()
+                    .collect(Collectors.toMap(Attraction::getId, a -> a));
+        }
+
+        // 5. UPDATE (если расстояние изменилось) / CREATE (если новая связь)
+        List<StationAttractions> toSave = new ArrayList<>();
+        for (Map.Entry<Long, Integer> entry : incomingByAttractionId.entrySet()) {
+            Long attractionId = entry.getKey();
+            int distance = entry.getValue();
+
+            StationAttractions existingLink = existingByAttractionId.get(attractionId);
+            if (existingLink != null) {
+                if (!Objects.equals(existingLink.getDistance(), distance)) {
+                    existingLink.setDistance(distance); // dirty checking сам сделает UPDATE
+                    toSave.add(existingLink);
+                }
+            } else {
+                Attraction attraction = newAttractionsById.get(attractionId);
+                toSave.add(new StationAttractions(station, attraction, distance));
+            }
+        }
+        if (!toSave.isEmpty()) {
+            stationAttractionsRepository.saveAll(toSave);
+        }
+    }
+    private void updateStationMedias(Station station, StationMediasRequest mediaRequest) {
+        // id старых медиа ДО очистки join-таблицы station_medias
+        List<Long> oldMediaIds = station.getMedias() == null
+                ? List.of()
+                : station.getMedias().stream().map(Media::getId).toList();
+
+        Set<Media> newMedias = buildMedias(mediaRequest); // переиспользуем твой приватный метод
+
+        if (station.getMedias() == null) {
+            station.setMedias(new HashSet<>());
+        } else {
+            station.getMedias().clear();
+        }
+        station.getMedias().addAll(newMedias);
+
+        // join-таблица должна обновиться ДО удаления осиротевших медиа
+        // (@Modifying deleteOrphansByIds по умолчанию не делает flush сам)
+        stationRepository.flush();
+
+        if (!oldMediaIds.isEmpty()) {
+            mediaRepository.deleteOrphansByIds(oldMediaIds);
+        }
+    }
+
+    private void updateCellTowers(Station station, List<CellTowerRequest> towerRequests) {
+        // Полная замена: старые вышки удаляем, новые вставляем.
+        // У Station нет каскада на CellTower, поэтому пишем через CellTowerRepository.
+        cellTowerRepository.deleteByStationId(station.getId());
+
+        if (towerRequests == null || towerRequests.isEmpty()) {
+            return;
+        }
+
+        List<CellTower> towers = towerRequests.stream()
+                .map(req -> new CellTower(
+                        req.cid(),
+                        req.lac(),
+                        req.mcc(),
+                        req.mnc(),
+                        req.radio(),
+                        station))
+                .toList();
+        cellTowerRepository.saveAll(towers);
+    }
+
+
     @Transactional
     public StationCreatedResponse addStation(AddStationRequest request) {
         // 1. Проверка уникальности (name, branch) — на бд constraint, но дружелюбное сообщение лучше
