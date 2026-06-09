@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
-
 public record AddStationRequest(
         @NotBlank(message = "Название станции обязательно")
         String name,
@@ -21,5 +20,9 @@ public record AddStationRequest(
         StationMediasRequest media,
 
         @Valid
-        List<CellTowerRequest> cellTowers
+        List<CellTowerRequest> cellTowers,
+
+        @Valid
+        List<StationAttractionLinkRequest> stationAttractions
+
 ) {}

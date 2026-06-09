@@ -188,10 +188,31 @@ public class StationService {
         cellTowerRepository.saveAll(towers);
     }
 
+    private void createAttractionLinks(Station station, List<StationAttractionLinkRequest> attractions) {
+        if (attractions == null || attractions.isEmpty()) {
+            return;
+        }
 
+        // Один SELECT по всем id сразу
+        List<Long> attractionIds = attractions.stream()
+                .map(StationAttractionLinkRequest::attractionId)
+                .toList();
+
+        Map<Long, Attraction> attractionsById = attractionRepository.findAllById(attractionIds).stream()
+                .collect(Collectors.toMap(Attraction::getId, a -> a));
+
+        List<StationAttractions> links = attractions.stream()
+                .map(req -> new StationAttractions(
+                        station,
+                        attractionsById.get(req.attractionId()),
+                        req.distance()))
+                .toList();
+
+        stationAttractionsRepository.saveAll(links);
+    }
     @Transactional
     public StationCreatedResponse addStation(AddStationRequest request) {
-        // 1. Проверка уникальности (name, branch) — на бд constraint, но дружелюбное сообщение лучше
+        // 1. Проверка уникальности (name, branch)
         stationRepository.findByNameAndBranch(request.name(), request.branch())
                 .ifPresent(s -> {
                     throw new ResourceNotFoundException(
@@ -199,8 +220,6 @@ public class StationService {
                 });
 
         // 2. Создаём саму станцию.
-        //    address и extraServices не пришли в запросе — подставляем безопасные дефолты,
-        //    чтобы не падал NOT NULL constraint у address.
         Station station = new Station(
                 "",                       // address
                 new ArrayList<>(),        // extraServices
@@ -209,14 +228,13 @@ public class StationService {
                 request.name()
         );
 
-        // 3. Готовим коллекцию медиа. ManyToMany с CascadeType.ALL сохранит их вместе со станцией.
+        // 3. Готовим коллекцию медиа.
         station.setMedias(buildMedias(request.media()));
 
         // 4. Сохраняем станцию (вместе с медиа по каскаду) и получаем сгенерированный id.
         Station saved = stationRepository.save(station);
 
-        // 5. Сохраняем вышки. У Station нет обратной коллекции CellTower —
-        //    каскад здесь не сработает, поэтому пишем через CellTowerRepository.
+        // 5. Сохраняем вышки.
         if (request.cellTowers() != null && !request.cellTowers().isEmpty()) {
             List<CellTower> towers = request.cellTowers().stream()
                     .map(req -> new CellTower(
@@ -230,9 +248,15 @@ public class StationService {
             cellTowerRepository.saveAll(towers);
         }
 
-        return new StationCreatedResponse(saved.getId(), saved.getName(), saved.getBranch());
-    }
 
+// 6. Сохраняем связи с достопримечательностями.
+//    У Station OneToMany на StationAttractions с CascadeType.ALL, но обратная коллекция
+//    в saved сейчас null/не инициализирована — поэтому пишем явно через репозиторий.
+        createAttractionLinks(saved, request.stationAttractions());
+
+        return new StationCreatedResponse(saved.getId(), saved.getName(), saved.getBranch());
+
+    }
     private Set<Media> buildMedias(StationMediasRequest mediaRequest) {
         if (mediaRequest == null) {
             return new HashSet<>();
