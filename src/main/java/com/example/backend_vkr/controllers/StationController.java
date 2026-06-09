@@ -31,10 +31,6 @@ public class StationController implements StationAPI {
     }
 
     @Override
-    public StationCreatedResponse addStation(@Valid AddStationRequest request) {
-        return stationService.addStation(request);
-    }
-    @Override
     public void deleteStation(Long id) {
         stationService.deleteStation(id);
     }

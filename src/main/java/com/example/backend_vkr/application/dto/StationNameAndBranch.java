@@ -8,6 +8,9 @@ public record StationNameAndBranch(
         Long id,
         String name,
         String branch,
-        Map<MediaType, List<String>> medias // Добавляем медиа
+        Double latitude,
+        Double   longitude,
+        List<CellTowerRequest> cellTowers // Добавлено
+
 ) {
 }

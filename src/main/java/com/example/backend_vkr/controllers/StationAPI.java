@@ -54,9 +54,7 @@ public interface StationAPI {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteStation(@PathVariable Long id);
 
-    @PostMapping("/stations")
-    @ResponseStatus(HttpStatus.CREATED)
-    StationCreatedResponse addStation(@Valid @RequestBody AddStationRequest request);
+
     @Operation(summary = "Обновить достопримечательность")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Достопримечательность обновлена"),

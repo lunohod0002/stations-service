@@ -188,75 +188,7 @@ public class StationService {
         cellTowerRepository.saveAll(towers);
     }
 
-    private void createAttractionLinks(Station station, List<StationAttractionLinkRequest> attractions) {
-        if (attractions == null || attractions.isEmpty()) {
-            return;
-        }
-
-        // Один SELECT по всем id сразу
-        List<Long> attractionIds = attractions.stream()
-                .map(StationAttractionLinkRequest::attractionId)
-                .toList();
-
-        Map<Long, Attraction> attractionsById = attractionRepository.findAllById(attractionIds).stream()
-                .collect(Collectors.toMap(Attraction::getId, a -> a));
-
-        List<StationAttractions> links = attractions.stream()
-                .map(req -> new StationAttractions(
-                        station,
-                        attractionsById.get(req.attractionId()),
-                        req.distance()))
-                .toList();
-
-        stationAttractionsRepository.saveAll(links);
-    }
     @Transactional
-    public StationCreatedResponse addStation(AddStationRequest request) {
-        // 1. Проверка уникальности (name, branch)
-        stationRepository.findByNameAndBranch(request.name(), request.branch())
-                .ifPresent(s -> {
-                    throw new ResourceNotFoundException(
-                            "Станция уже существует: ", request.name() + " (" + request.branch() + ")");
-                });
-
-        // 2. Создаём саму станцию.
-        Station station = new Station(
-                "",                       // address
-                new ArrayList<>(),        // extraServices
-                request.description(),
-                request.branch(),
-                request.name()
-        );
-
-        // 3. Готовим коллекцию медиа.
-        station.setMedias(buildMedias(request.media()));
-
-        // 4. Сохраняем станцию (вместе с медиа по каскаду) и получаем сгенерированный id.
-        Station saved = stationRepository.save(station);
-
-        // 5. Сохраняем вышки.
-        if (request.cellTowers() != null && !request.cellTowers().isEmpty()) {
-            List<CellTower> towers = request.cellTowers().stream()
-                    .map(req -> new CellTower(
-                            req.cid(),
-                            req.lac(),
-                            req.mcc(),
-                            req.mnc(),
-                            req.radio(),
-                            saved))
-                    .toList();
-            cellTowerRepository.saveAll(towers);
-        }
-
-
-// 6. Сохраняем связи с достопримечательностями.
-//    У Station OneToMany на StationAttractions с CascadeType.ALL, но обратная коллекция
-//    в saved сейчас null/не инициализирована — поэтому пишем явно через репозиторий.
-        createAttractionLinks(saved, request.attractions());
-
-        return new StationCreatedResponse(saved.getId(), saved.getName(), saved.getBranch());
-
-    }
     private Set<Media> buildMedias(StationMediasRequest mediaRequest) {
         if (mediaRequest == null) {
             return new HashSet<>();
@@ -347,22 +279,45 @@ public class StationService {
     }
 
 
+// Не забудьте внедрить CellTowerRepository в ваш сервис
+// private final CellTowerRepository cellTowerRepository;
+
     public StationsResponse getAllStations() {
-        // Используем метод с EntityGraph, чтобы избежать LazyInitializationException и N+1
+        // 1. Получаем все станции
         List<Station> stations = stationRepository.findAllWithMedias();
 
+        // 2. Получаем все вышки одним запросом
+        List<CellTower> allTowers = cellTowerRepository.findAllWithStations();
+
+        // 3. Группируем вышки по ID станции
+        Map<Long, List<CellTower>> towersByStationId = allTowers.stream()
+                .filter(tower -> tower.getStation() != null)
+                .collect(Collectors.groupingBy(tower -> tower.getStation().getId()));
+
+        // 4. Собираем итоговый ответ
         return new StationsResponse(
                 stations.stream()
                         .map(station -> new StationNameAndBranch(
                                 station.getId(),
                                 station.getName(),
                                 station.getBranch(),
-                                mapMedias(station.getMedias()) // Маппим медиа
+                                station.getLatitude(),
+                                station.getLongitude(),
+                                // Маппим вышки для текущей станции
+                                towersByStationId.getOrDefault(station.getId(), Collections.emptyList())
+                                        .stream()
+                                        .map(tower -> new CellTowerRequest(
+                                                tower.getCid(),
+                                                tower.getLac(),
+                                                tower.getMcc(),
+                                                tower.getMnc(),
+                                                tower.getRadio()
+                                        ))
+                                        .toList()
                         ))
                         .toList()
         );
     }
-
     // Выносим логику маппинга медиа в приватный метод (DRY принцип)
 // Позже ты сможешь переиспользовать его в getStationByNameAndBranch вместо запроса в mediaRepository
     private Map<MediaType, List<String>> mapMedias(Set<Media> medias) {
