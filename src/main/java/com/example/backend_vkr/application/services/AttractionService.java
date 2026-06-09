@@ -142,7 +142,7 @@ public class AttractionService {
 
         // 4) Добавляем новые медиа
         Set<Media> newMedias = request.medias() == null
-                ? List.of()
+                ? Set.of()
                 :  request.medias().stream()
                 .map(req -> {
                     Media media = new Media(req.type(), null, req.urlRef());

@@ -1,0 +1,10 @@
+package com.example.backend_vkr.application.dto;
+
+import java.util.List;
+
+public record StationMediasRequest(
+        List<String> photoUrls,
+        List<String> videoUrls,
+        List<String> audioUrls
+) {
+}

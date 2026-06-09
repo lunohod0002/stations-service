@@ -36,6 +36,10 @@ public interface StationAPI {
     )})
     @GetMapping({"/stations"})
     StationResponse getStationInfo(@RequestParam("stationName") String stationName, @RequestParam("branch") String branch);
+
+    @PostMapping("/stations")
+    @ResponseStatus(HttpStatus.CREATED)
+    StationCreatedResponse addStation(@Valid @RequestBody AddStationRequest request);
     @Operation(summary = "Обновить достопримечательность")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Достопримечательность обновлена"),
@@ -140,6 +144,7 @@ public interface StationAPI {
     @PostMapping({"/attractions"})
     @ResponseStatus(HttpStatus.CREATED)
     AttractionCreatedResponse addAttraction(@RequestBody @Valid AttractionRequest request);
+
 
     @DeleteMapping({"/attractions/{attractionId}"})
     @ResponseStatus(HttpStatus.NO_CONTENT)

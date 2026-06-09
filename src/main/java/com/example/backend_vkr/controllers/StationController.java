@@ -31,8 +31,13 @@ public class StationController implements StationAPI {
     }
 
     @Override
-    public AttractionInfoResponse updateAttraction(Long id, @Valid AttractionRequest request) {
-        return attractionService.updateAttraction(id, request);
+    public StationCreatedResponse addStation(@Valid AddStationRequest request) {
+        return stationService.addStation(request);
+    }
+
+    @Override
+    public AttractionInfoResponse updateAttraction(Long id, AttractionRequest request) {
+        return attractionService.updateAttraction(id,request);
     }
 
     // @Cacheable(value = "allStations")
