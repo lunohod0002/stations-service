@@ -252,7 +252,7 @@ public class StationService {
 // 6. Сохраняем связи с достопримечательностями.
 //    У Station OneToMany на StationAttractions с CascadeType.ALL, но обратная коллекция
 //    в saved сейчас null/не инициализирована — поэтому пишем явно через репозиторий.
-        createAttractionLinks(saved, request.stationAttractions());
+        createAttractionLinks(saved, request.attractions());
 
         return new StationCreatedResponse(saved.getId(), saved.getName(), saved.getBranch());
 
@@ -292,6 +292,19 @@ public class StationService {
         List<StationAttractions> stationAttractions =
                 stationAttractionsRepository.findStationAttractionsByStation(station.getId(), topFive);
 
+        // --- НОВАЯ ЛОГИКА: Получение и маппинг вышек ---
+        List<CellTowerRequest> cellTowers = cellTowerRepository.findAllByStationId(station.getId())
+                .stream()
+                .map(tower -> new CellTowerRequest(
+                        tower.getCid(),
+                        tower.getLac(),
+                        tower.getMcc(),
+                        tower.getMnc(),
+                        tower.getRadio()
+                ))
+                .toList();
+        // ----------------------------------------------
+
         return new StationResponse(
                 station.getId(),
                 station.getName(),
@@ -302,7 +315,9 @@ public class StationService {
                 mediaByType.getOrDefault(MediaType.VIDEO, List.of()),
                 mediaByType.getOrDefault(MediaType.AUDIO, List.of()),
                 station.getExtraServices().stream().map(ExtraService::getName).toList(),
-                toAttractionResponses(stationAttractions));
+                toAttractionResponses(stationAttractions),
+                cellTowers // <-- Передаем список вышек в конструктор StationResponse
+        );
     }
 
     private List<AttractionResponse> toAttractionResponses(List<StationAttractions> stationAttractions) {

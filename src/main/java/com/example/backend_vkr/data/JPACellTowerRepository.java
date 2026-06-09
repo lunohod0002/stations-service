@@ -18,4 +18,7 @@ public interface JPACellTowerRepository extends JpaRepository<CellTower, Long>, 
     @Modifying
     @Query("delete from CellTower c where c.station.id = :stationId")
     void deleteByStationId(@Param("stationId") Long stationId);
+    
+    List<CellTower> findAllByStationId(Long stationId);
+
 }

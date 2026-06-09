@@ -23,6 +23,6 @@ public record AddStationRequest(
         List<CellTowerRequest> cellTowers,
 
         @Valid
-        List<StationAttractionLinkRequest> stationAttractions
+        List<StationAttractionLinkRequest> attractions
 
 ) {}
