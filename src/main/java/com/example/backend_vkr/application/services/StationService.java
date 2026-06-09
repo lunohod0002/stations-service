@@ -333,14 +333,33 @@ public class StationService {
 
 
     public StationsResponse getAllStations() {
-        List<Station> stations=stationRepository.findAll();
+        // Используем метод с EntityGraph, чтобы избежать LazyInitializationException и N+1
+        List<Station> stations = stationRepository.findAllWithMedias();
+
         return new StationsResponse(
-        stations.stream()
-                .map(station -> new StationNameAndBranch(
-                        station.getId(),
-                        station.getName(),
-                        station.getBranch()))
-                .toList());
+                stations.stream()
+                        .map(station -> new StationNameAndBranch(
+                                station.getId(),
+                                station.getName(),
+                                station.getBranch(),
+                                mapMedias(station.getMedias()) // Маппим медиа
+                        ))
+                        .toList()
+        );
+    }
+
+    // Выносим логику маппинга медиа в приватный метод (DRY принцип)
+// Позже ты сможешь переиспользовать его в getStationByNameAndBranch вместо запроса в mediaRepository
+    private Map<MediaType, List<String>> mapMedias(Set<Media> medias) {
+        if (medias == null || medias.isEmpty()) {
+            return Map.of();
+        }
+
+        return medias.stream()
+                .collect(Collectors.groupingBy(
+                        Media::getType,
+                        Collectors.mapping(Media::getUrlRef, Collectors.toList())
+                ));
     }
     @Transactional
     public void deleteStation(Long id) {
