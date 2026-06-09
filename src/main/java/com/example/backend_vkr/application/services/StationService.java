@@ -167,4 +167,21 @@ public class StationService {
                         station.getBranch()))
                 .toList());
     }
+    @Transactional
+    public void deleteStation(Long id) {
+        Station station = stationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Станция не найдена:", String.valueOf(id)));
+
+        // CellTower не имеет каскада со стороны Station — чистим явно,
+        // до удаления самой станции, чтобы не нарушить FK.
+        cellTowerRepository.deleteByStationId(id);
+
+        // Дальше JPA-каскад сам разберётся:
+        //  - station_medias + medias    (ManyToMany cascade ALL)
+        //  - station_attractions        (OneToMany cascade ALL) — БЕЗ удаления Attraction
+        //  - extra_services             (OneToMany cascade ALL + orphanRemoval)
+        stationRepository.delete(station);
+    }
 }
+

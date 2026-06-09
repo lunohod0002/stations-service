@@ -37,6 +37,10 @@ public interface StationAPI {
     @GetMapping({"/stations"})
     StationResponse getStationInfo(@RequestParam("stationName") String stationName, @RequestParam("branch") String branch);
 
+    @DeleteMapping("/stations/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deleteStation(@PathVariable Long id);
+
     @PostMapping("/stations")
     @ResponseStatus(HttpStatus.CREATED)
     StationCreatedResponse addStation(@Valid @RequestBody AddStationRequest request);

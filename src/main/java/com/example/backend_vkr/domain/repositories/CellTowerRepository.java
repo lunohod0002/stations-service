@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface CellTowerRepository extends BaseRepository<CellTower,Long> {
 
+    void deleteByStationId(Long stationId);
 
 }
