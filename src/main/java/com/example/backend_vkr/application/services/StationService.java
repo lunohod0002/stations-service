@@ -44,8 +44,6 @@ public class StationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Станция не найдена:", String.valueOf(id)));
 
-        // Уникальность (name, branch): свои же значения разрешаем,
-        // но не даём занять пару, принадлежащую другой станции.
         stationRepository.findByNameAndBranch(request.name(), request.branch())
                 .filter(other -> !other.getId().equals(id))
                 .ifPresent(other -> {
@@ -53,7 +51,6 @@ public class StationService {
                             "Станция уже существует: ", request.name() + " (" + request.branch() + ")");
                 });
 
-        // 1. Простые поля
         station.setName(request.name());
         station.setBranch(request.branch());
         station.setDescription(request.description());
@@ -61,22 +58,16 @@ public class StationService {
             station.setAddress(request.address());
         }
 
-        // 2. Медиа — полная замена
         updateStationMedias(station, request.media());
 
-        // 3. Вышки CellTower — полная замена
         updateCellTowers(station, request.cellTowers());
 
-        // 4. Достопримечательности — диффинг по присланному списку
         syncAttractionLinks(station, request.attractions());
 
         return getStationByNameAndBranch(station.getName(), station.getBranch());
     }
 
     private void syncAttractionLinks(Station station, List<StationAttractionLinkRequest> incoming) {
-        // 1. Нормализуем входной список: attractionId -> distance.
-        //    Используем LinkedHashMap, чтобы при дублях побеждал последний (last-wins),
-        //    а порядок вставки оставался предсказуемым.
         Map<Long, Integer> incomingByAttractionId = new LinkedHashMap<>();
         if (incoming != null) {
             for (StationAttractionLinkRequest req : incoming) {
@@ -84,26 +75,23 @@ public class StationService {
             }
         }
 
-        // 2. Текущие привязки станции
         List<StationAttractions> existing =
                 stationAttractionsRepository.findByStationId(station.getId());
         Map<Long, StationAttractions> existingByAttractionId = existing.stream()
                 .collect(Collectors.toMap(sa -> sa.getAttraction().getId(), sa -> sa));
 
-        // 3. УДАЛЯЕМ всё, чего нет в новом списке
         List<StationAttractions> toDelete = existing.stream()
                 .filter(sa -> !incomingByAttractionId.containsKey(sa.getAttraction().getId()))
                 .toList();
         if (!toDelete.isEmpty()) {
             stationAttractionsRepository.deleteAll(toDelete);
-            stationAttractionsRepository.flush(); // важно: до возможной повторной вставки
+            stationAttractionsRepository.flush();
         }
 
         if (incomingByAttractionId.isEmpty()) {
             return;
         }
 
-        // 4. Заранее подгружаем Attraction-ы для будущих НОВЫХ связей (батчем, без N+1)
         Set<Long> idsToCreate = incomingByAttractionId.keySet().stream()
                 .filter(attractionId -> !existingByAttractionId.containsKey(attractionId))
                 .collect(Collectors.toSet());
@@ -122,7 +110,6 @@ public class StationService {
                     .collect(Collectors.toMap(Attraction::getId, a -> a));
         }
 
-        // 5. UPDATE (если расстояние изменилось) / CREATE (если новая связь)
         List<StationAttractions> toSave = new ArrayList<>();
         for (Map.Entry<Long, Integer> entry : incomingByAttractionId.entrySet()) {
             Long attractionId = entry.getKey();
@@ -131,7 +118,7 @@ public class StationService {
             StationAttractions existingLink = existingByAttractionId.get(attractionId);
             if (existingLink != null) {
                 if (!Objects.equals(existingLink.getDistance(), distance)) {
-                    existingLink.setDistance(distance); // dirty checking сам сделает UPDATE
+                    existingLink.setDistance(distance);
                     toSave.add(existingLink);
                 }
             } else {
@@ -144,12 +131,11 @@ public class StationService {
         }
     }
     private void updateStationMedias(Station station, StationMediasRequest mediaRequest) {
-        // id старых медиа ДО очистки join-таблицы station_medias
         List<Long> oldMediaIds = station.getMedias() == null
                 ? List.of()
                 : station.getMedias().stream().map(Media::getId).toList();
 
-        Set<Media> newMedias = buildMedias(mediaRequest); // переиспользуем твой приватный метод
+        Set<Media> newMedias = buildMedias(mediaRequest);
 
         if (station.getMedias() == null) {
             station.setMedias(new HashSet<>());
@@ -158,8 +144,6 @@ public class StationService {
         }
         station.getMedias().addAll(newMedias);
 
-        // join-таблица должна обновиться ДО удаления осиротевших медиа
-        // (@Modifying deleteOrphansByIds по умолчанию не делает flush сам)
         stationRepository.flush();
 
         if (!oldMediaIds.isEmpty()) {
@@ -168,8 +152,6 @@ public class StationService {
     }
 
     private void updateCellTowers(Station station, List<CellTowerRequest> towerRequests) {
-        // Полная замена: старые вышки удаляем, новые вставляем.
-        // У Station нет каскада на CellTower, поэтому пишем через CellTowerRepository.
         cellTowerRepository.deleteByStationId(station.getId());
 
         if (towerRequests == null || towerRequests.isEmpty()) {
@@ -204,8 +186,6 @@ public class StationService {
         if (urls == null) return;
         for (String url : urls) {
             if (url == null || url.isBlank()) continue;
-            // Подразумевается, что у Media есть конструктор Media(MediaType, String urlRef).
-            // Если конструктор другой — замени на сеттеры/билдер.
             target.add(new Media(type, null,url));
         }
     }
@@ -224,7 +204,6 @@ public class StationService {
         List<StationAttractions> stationAttractions =
                 stationAttractionsRepository.findStationAttractionsByStation(station.getId(), topFive);
 
-        // --- НОВАЯ ЛОГИКА: Получение и маппинг вышек ---
         List<CellTowerRequest> cellTowers = cellTowerRepository.findAllByStationId(station.getId())
                 .stream()
                 .map(tower -> new CellTowerRequest(
@@ -235,7 +214,6 @@ public class StationService {
                         tower.getRadio()
                 ))
                 .toList();
-        // ----------------------------------------------
 
         return new StationResponse(
                 station.getId(),
@@ -248,7 +226,7 @@ public class StationService {
                 mediaByType.getOrDefault(MediaType.AUDIO, List.of()),
                 station.getExtraServices().stream().map(ExtraService::getName).toList(),
                 toAttractionResponses(stationAttractions),
-                cellTowers // <-- Передаем список вышек в конструктор StationResponse
+                cellTowers
         );
     }
 
@@ -279,22 +257,16 @@ public class StationService {
     }
 
 
-// Не забудьте внедрить CellTowerRepository в ваш сервис
-// private final CellTowerRepository cellTowerRepository;
 
     public StationsResponse getAllStations() {
-        // 1. Получаем все станции
         List<Station> stations = stationRepository.findAllWithMedias();
 
-        // 2. Получаем все вышки одним запросом
         List<CellTower> allTowers = cellTowerRepository.findAllWithStations();
 
-        // 3. Группируем вышки по ID станции
         Map<Long, List<CellTower>> towersByStationId = allTowers.stream()
                 .filter(tower -> tower.getStation() != null)
                 .collect(Collectors.groupingBy(tower -> tower.getStation().getId()));
 
-        // 4. Собираем итоговый ответ
         return new StationsResponse(
                 stations.stream()
                         .map(station -> new StationNameAndBranch(
@@ -303,7 +275,6 @@ public class StationService {
                                 station.getBranch(),
                                 station.getLatitude(),
                                 station.getLongitude(),
-                                // Маппим вышки для текущей станции
                                 towersByStationId.getOrDefault(station.getId(), Collections.emptyList())
                                         .stream()
                                         .map(tower -> new CellTowerRequest(
@@ -318,8 +289,6 @@ public class StationService {
                         .toList()
         );
     }
-    // Выносим логику маппинга медиа в приватный метод (DRY принцип)
-// Позже ты сможешь переиспользовать его в getStationByNameAndBranch вместо запроса в mediaRepository
     private Map<MediaType, List<String>> mapMedias(Set<Media> medias) {
         if (medias == null || medias.isEmpty()) {
             return Map.of();
@@ -337,15 +306,8 @@ public class StationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Станция не найдена:", String.valueOf(id)));
 
-        // CellTower не имеет каскада со стороны Station — чистим явно,
-        // до удаления самой станции, чтобы не нарушить FK.
         cellTowerRepository.deleteByStationId(id);
 
-        // Дальше JPA-каскад сам разберётся:
-        //  - station_medias + medias    (ManyToMany cascade ALL)
-        //  - station_attractions        (OneToMany cascade ALL) — БЕЗ удаления Attraction
-        //  - extra_services             (OneToMany cascade ALL + orphanRemoval)
         stationRepository.delete(station);
     }
 }
-
