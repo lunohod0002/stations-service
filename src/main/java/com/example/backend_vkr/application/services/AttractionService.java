@@ -118,7 +118,6 @@ public class AttractionService {
         Attraction attraction = attractionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Достопримечательность не найдена:", id));
 
-        // 1) Простые поля
         attraction.setName(request.name());
         attraction.setPhoneNumber(request.phoneNumber());
         attraction.setEmail(request.email());
@@ -128,19 +127,16 @@ public class AttractionService {
         attraction.setPrice(request.price());
         attraction.setUrlRef(request.urlRef());
 
-        // 2) Запоминаем ID старых медиа ДО очистки
         List<Long> oldMediaIds = attraction.getMedias() == null
                 ? List.of()
                 : attraction.getMedias().stream().map(Media::getId).toList();
 
-        // 3) Очищаем join-таблицу attraction_medias
         if (attraction.getMedias() == null) {
             attraction.setMedias(new HashSet<>());
         } else {
             attraction.getMedias().clear();
         }
 
-        // 4) Добавляем новые медиа
         Set<Media> newMedias = request.medias() == null
                 ? Set.of()
                 :  request.medias().stream()
@@ -152,15 +148,12 @@ public class AttractionService {
                 .collect(Collectors.toSet());
         attraction.getMedias().addAll(newMedias);
 
-        // 5) Сбрасываем изменения в БД, чтобы join-таблица обновилась ДО проверки сирот
         attractionRepository.flush();
 
-        // 6) Удаляем осиротевшие медиа
         if (!oldMediaIds.isEmpty()) {
             mediaRepository.deleteOrphansByIds(oldMediaIds);
         }
 
-        // 7) Связи со станциями
         List<StationAttractions> oldLinks =
                 stationAttractionsRepository.findStationAttractionsByAttraction(id);
         stationAttractionsRepository.deleteAll(oldLinks);
@@ -220,11 +213,9 @@ public class AttractionService {
                 ? List.of()
                 : attraction.getMedias().stream().map(Media::getId).toList();
 
-        // Удаляем саму достопримечательность (cascade удалит записи из attraction_medias)
         attractionRepository.delete(attraction);
         attractionRepository.flush();
 
-        // Чистим сирот
         if (!mediaIds.isEmpty()) {
             mediaRepository.deleteOrphansByIds(mediaIds);
         }
